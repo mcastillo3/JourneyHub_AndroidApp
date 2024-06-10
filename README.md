@@ -12,3 +12,13 @@ Created a database and repository. Created a dao package with Excursion and Vaca
 Added sample data to test database.
 Created new vacation_list_item and excursion_list_item layouts to use for recycler view.
 Added recycler view to activity_vacation_details and activity_vacation_list.
+Created VacationAdapter class to implement view holders.
+Added code to see recycler view in VacationList class.
+Added code to see recycler view in VacationDetails class.
+Added code to save new vacations and update current vacations.
+Created a new menu_excursion_details to provide Save, Share, and Notify capability.
+Created ExcursionAdapter class to implement view holders.
+Created a MyReceiver broadcaster to create and send notifications.
+Added code to ExcursionDetails class to pick a date for the excursion.
+Generated a random int to pass in the Intent "notify", instead of starting from 0.
+Added code to have the DatePicker start from the current date, instead of a hard-coded date.
