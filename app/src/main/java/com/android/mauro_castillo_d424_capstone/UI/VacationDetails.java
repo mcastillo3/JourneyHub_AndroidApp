@@ -19,10 +19,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.mauro_castillo_vacationapp.R;
-import com.android.mauro_castillo_vacationapp.database.Repository;
-import com.android.mauro_castillo_vacationapp.entities.Excursion;
-import com.android.mauro_castillo_vacationapp.entities.Vacation;
+import com.android.mauro_castillo_d424_capstone.R;
+import com.android.mauro_castillo_d424_capstone.database.Repository;
+import com.android.mauro_castillo_d424_capstone.entities.Excursion;
+import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.ParseException;

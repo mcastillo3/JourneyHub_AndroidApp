@@ -16,10 +16,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.mauro_castillo_vacationapp.R;
-import com.android.mauro_castillo_vacationapp.database.Repository;
-import com.android.mauro_castillo_vacationapp.entities.Excursion;
-import com.android.mauro_castillo_vacationapp.entities.Vacation;
+import com.android.mauro_castillo_d424_capstone.R;
+import com.android.mauro_castillo_d424_capstone.database.Repository;
+import com.android.mauro_castillo_d424_capstone.entities.Excursion;
+import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
