@@ -22,3 +22,10 @@ Created a MyReceiver broadcaster to create and send notifications.
 Added code to ExcursionDetails class to pick a date for the excursion.
 Generated a random int to pass in the Intent "notify", instead of starting from 0.
 Added code to have the DatePicker start from the current date, instead of a hard-coded date.
+Display a detailed view of the vacation, including all vacation details. View can be used to add and update vacation information.
+Added validation to the vacation end date to check it is after the start date.
+Added notification and alarm trigger to VacationDetails to allow user to set start and end date notification.
+Added validation to start date notification.
+Added a sharing feature so the user can share all vacation details via a sharing feature.
+Added notification and alarm trigger to ExcursionDetails to allow user to set start date notification.
+Added validation to excursion date to ensure it is between the start and end of the vacation dates.
