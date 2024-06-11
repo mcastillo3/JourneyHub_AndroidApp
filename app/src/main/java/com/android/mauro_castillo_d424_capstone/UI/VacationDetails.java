@@ -200,6 +200,7 @@ public class VacationDetails extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu (Menu menu) {
         getMenuInflater().inflate(R.menu.menu_vacation_details, menu);
+        getMenuInflater().inflate(R.menu.options_menu, menu);
         return true;
     }
 

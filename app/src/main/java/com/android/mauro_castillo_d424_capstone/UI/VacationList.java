@@ -49,6 +49,7 @@ public class VacationList extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_vacation_list, menu);
+        getMenuInflater().inflate(R.menu.options_menu, menu);
         return true;
     }
 

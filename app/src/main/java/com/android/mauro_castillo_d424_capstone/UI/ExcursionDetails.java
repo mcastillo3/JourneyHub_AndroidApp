@@ -160,6 +160,7 @@ public class ExcursionDetails extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu (Menu menu) {
         getMenuInflater().inflate(R.menu.menu_excursion_details, menu);
+        getMenuInflater().inflate(R.menu.options_menu, menu);
         return true;
     }
 
