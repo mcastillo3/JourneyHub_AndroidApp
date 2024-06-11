@@ -3,6 +3,7 @@ package com.android.mauro_castillo_d424_capstone.UI;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -201,6 +202,7 @@ public class VacationDetails extends AppCompatActivity {
     public boolean onCreateOptionsMenu (Menu menu) {
         getMenuInflater().inflate(R.menu.menu_vacation_details, menu);
         getMenuInflater().inflate(R.menu.options_menu, menu);
+
         return true;
     }
 

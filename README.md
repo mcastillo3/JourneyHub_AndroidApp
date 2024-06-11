@@ -30,3 +30,4 @@ Added a sharing feature so the user can share all vacation details via a sharing
 Added notification and alarm trigger to ExcursionDetails to allow user to set start date notification.
 Added validation to excursion date to ensure it is between the start and end of the vacation dates.
 Created options_menu and added SearchView to app bar.
+Created searchable xml file. Added searchable activity to Manifest.
