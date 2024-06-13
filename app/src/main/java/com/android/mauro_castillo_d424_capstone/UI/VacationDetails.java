@@ -4,6 +4,8 @@ import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
 import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,7 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-public class VacationDetails extends AppCompatActivity {
+public class VacationDetails extends AppCompatActivity implements androidx.appcompat.widget.SearchView.OnQueryTextListener {
 
     String vacationName;
     String hotelName;
@@ -201,8 +204,6 @@ public class VacationDetails extends AppCompatActivity {
 
     public boolean onCreateOptionsMenu (Menu menu) {
         getMenuInflater().inflate(R.menu.menu_vacation_details, menu);
-        getMenuInflater().inflate(R.menu.options_menu, menu);
-
         return true;
     }
 
@@ -425,5 +426,15 @@ public class VacationDetails extends AppCompatActivity {
                 numAlert, intent, PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, trigger, sender);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
     }
 }

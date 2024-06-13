@@ -1,5 +1,6 @@
 package com.android.mauro_castillo_d424_capstone.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -25,4 +26,10 @@ public interface VacationDAO {
 
     @Query("SELECT * FROM vacations ORDER BY vacationId ASC")
     List<Vacation> getAllVacations();
+
+    @Query("SELECT * FROM vacations ORDER BY vacationId ASC")
+    LiveData<List<Vacation>> readData();
+
+    @Query("SELECT * FROM vacations WHERE vacationName LIKE :searchQuery")
+    LiveData<List<Vacation>> searchDatabase(String searchQuery);
 }

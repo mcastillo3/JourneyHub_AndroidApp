@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.mauro_castillo_d424_capstone.R;
 import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.VacationViewHolder> {
@@ -26,7 +30,6 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
     }
 
     public class VacationViewHolder extends RecyclerView.ViewHolder {
-
         private final TextView vacationItemView;
         public VacationViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -59,8 +62,7 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
     public void onBindViewHolder(@NonNull VacationViewHolder holder, int position) {
         if (mVacations != null) {
             Vacation current = mVacations.get(position);
-            String name = current.getVacationName();
-            holder.vacationItemView.setText(name);
+            holder.vacationItemView.setText(current.getVacationName());
         } else {holder.vacationItemView.setText("No vacation name");}
     }
 
@@ -75,4 +77,5 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
         mVacations = vacations;
         notifyDataSetChanged();
     }
+
 }

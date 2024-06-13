@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:title="Save Vacation"
         android:id="@+id/vacationSave" />
     <item android:title="Delete Vacation"
@@ -10,4 +11,11 @@
         android:id="@+id/vacationShare" />
     <item android:title="Add Sample Excursions"
         android:id="@+id/addSampleExcursions" />
+
+    <item
+        android:id="@+id/search"
+        android:title="@string/search_title"
+        android:icon="@drawable/ic_search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="collapseActionView|ifRoom" />
 </menu>

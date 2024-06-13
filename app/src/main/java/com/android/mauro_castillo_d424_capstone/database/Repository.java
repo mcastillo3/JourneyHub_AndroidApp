@@ -2,6 +2,8 @@ package com.android.mauro_castillo_d424_capstone.database;
 
 import android.app.Application;
 
+import androidx.lifecycle.LiveData;
+
 import com.android.mauro_castillo_d424_capstone.dao.ExcursionDAO;
 import com.android.mauro_castillo_d424_capstone.dao.VacationDAO;
 import com.android.mauro_castillo_d424_capstone.entities.Excursion;
@@ -16,6 +18,7 @@ public class Repository {
     private VacationDAO mVacationDAO;
     private List<Vacation> mAllVacations;
     private List<Excursion> mAllExcursions;
+    private LiveData<List<Vacation>> allVacations;
 
     private static int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -24,6 +27,7 @@ public class Repository {
         VacationDatabaseBuilder db = VacationDatabaseBuilder.getDatabase(application);
         mExcursionDAO = db.excursionDAO();
         mVacationDAO = db.vacationDAO();
+        allVacations = mVacationDAO.readData();
     }
 
     public List<Vacation> getmAllVacations() throws InterruptedException {
@@ -86,9 +90,17 @@ public class Repository {
     }
 
     public void delete(Excursion excursion) throws InterruptedException {
-        databaseExecutor.execute(()-> {
+        databaseExecutor.execute(() -> {
             mExcursionDAO.delete(excursion);
         });
         Thread.sleep(1000);
+    }
+
+    public LiveData<List<Vacation>> getAllVacations() throws InterruptedException {
+        return allVacations;
+    }
+
+    public LiveData<List<Vacation>> searchDatabase(String searchQuery) {
+        return mVacationDAO.searchDatabase("%" + searchQuery + "%");
     }
 }

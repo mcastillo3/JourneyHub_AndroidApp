@@ -31,3 +31,5 @@ Added notification and alarm trigger to ExcursionDetails to allow user to set st
 Added validation to excursion date to ensure it is between the start and end of the vacation dates.
 Created options_menu and added SearchView to app bar.
 Created searchable xml file. Added searchable activity to Manifest.
+Added searchview to activity list menu. Created VacationView Model to handle search functionality and displaying vacations.
+Optimized code for "adding samples" in VacationList.
