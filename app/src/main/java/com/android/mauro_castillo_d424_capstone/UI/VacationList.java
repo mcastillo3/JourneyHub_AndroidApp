@@ -13,9 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
 
 import com.android.mauro_castillo_d424_capstone.R;
+import com.android.mauro_castillo_d424_capstone.database.ReportGenerator;
 import com.android.mauro_castillo_d424_capstone.database.Repository;
 import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
 
 public class VacationList extends AppCompatActivity {
 
@@ -82,6 +85,15 @@ public class VacationList extends AppCompatActivity {
             this.finish();
             return true;
         }
+        // generate a report with all vacations
+        if (item.getItemId() == R.id.generateReport) {
+            try {
+                generateReport();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            return true;
+        }
         // add sample vacations
         if(item.getItemId() == R.id.addSampleVacations) {
             try {
@@ -92,6 +104,12 @@ public class VacationList extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void generateReport() throws InterruptedException {
+        List<Vacation> vacations = repository.getmAllVacations();
+        ReportGenerator reportGenerator = new ReportGenerator();
+        reportGenerator.generateExcelReport(vacations, getExternalFilesDir(null) + "/VacationReport.xlsx");
     }
 
     private void addSampleVacations() throws InterruptedException {

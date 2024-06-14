@@ -39,3 +39,5 @@ Created a ExcursionViewModelFactory viewmodel to pass the associated vacation in
 Added login screen to activity_main.
 Refactored MainActivity class and added login validation, using sample login username: "user" and password: "1234".
 Optimized code for adding new excursions and vacations.
+Added apache POI library to gradle build for generating excel reports.
+Created ReportGenerator class to write and generate an excel report with all vacations.
