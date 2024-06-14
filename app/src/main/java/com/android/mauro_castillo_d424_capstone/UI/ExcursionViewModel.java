@@ -1,6 +1,7 @@
 package com.android.mauro_castillo_d424_capstone.UI;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -19,28 +20,15 @@ public class ExcursionViewModel extends AndroidViewModel {
 
     private Repository mRepository;
     private MutableLiveData<String> searchQuery = new MutableLiveData<>();
-    private MediatorLiveData<List<Excursion>> searchResults = new MediatorLiveData<List<Excursion>>();
+    private MediatorLiveData<List<Excursion>> searchResults = new MediatorLiveData<>();
     private LiveData<List<Excursion>> currentSource;
-    Vacation currentVacation;
 
-    public ExcursionViewModel(@NonNull Application application) throws InterruptedException {
+    public ExcursionViewModel(@NonNull Application application, int vacationID) {
         super(application);
         mRepository = new Repository(application);
 
-        //List<Excursion> filteredExcursions = new ArrayList<>();
-        try {
-            for (Excursion e : mRepository.getmAllExcursions()) {
-                if (e.getVacationId() == currentVacation.getVacationId()) {
-                    //filteredExcursions.add(e);
-                    insert(e);
-                }
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
         // display current excursions from database
-        LiveData<List<Excursion>> initialData = mRepository.getAllExcursions();
+        LiveData<List<Excursion>> initialData = mRepository.getAssociatedExcursions(vacationID);
         searchResults.addSource(initialData, searchResults::setValue);
         currentSource = initialData;
 
@@ -48,13 +36,10 @@ public class ExcursionViewModel extends AndroidViewModel {
         searchQuery.observeForever(query -> {
             LiveData<List<Excursion>> newSource;
             if (query == null || query.isEmpty()) {
-                try {
-                    newSource = mRepository.getAllExcursions();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                newSource = mRepository.getAssociatedExcursions(vacationID);
             } else {
-                newSource = mRepository.searchEDatabase(query);
+                newSource = mRepository.searchEDatabase(vacationID, query);
+
             }
             updateSource(newSource);
         });
@@ -74,6 +59,10 @@ public class ExcursionViewModel extends AndroidViewModel {
 
     public LiveData<List<Excursion>> getAllExcursions() {
         return  searchResults;
+    }
+
+    public LiveData<List<Excursion>> getAssociatedExcursions(int vacationID) {
+        return mRepository.getAssociatedExcursions(vacationID);
     }
 
     public void setSearchQuery(String query) {

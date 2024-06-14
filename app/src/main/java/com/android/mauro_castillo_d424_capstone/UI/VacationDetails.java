@@ -155,7 +155,6 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
             updateLabelStart();
         };
 
-
         endDatePicker = (view, year, month, dayOfMonth) -> {
             myCalendarEnd.set(Calendar.YEAR, year);
             myCalendarEnd.set(Calendar.MONTH, month);
@@ -166,7 +165,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         };
 
         // set up view model
-        excursionViewModel = new ViewModelProvider(this).get(ExcursionViewModel.class);
+        excursionViewModel = new ViewModelProvider(this, new ExcursionViewModelFactory(getApplication(), vacationId)).get(ExcursionViewModel.class);
         excursionViewModel.getAllExcursions().observe(this, excursionAdapter::setExcursions);
     }
 

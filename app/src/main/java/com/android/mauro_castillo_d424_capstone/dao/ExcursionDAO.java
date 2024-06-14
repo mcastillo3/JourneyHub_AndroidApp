@@ -34,8 +34,8 @@ public interface ExcursionDAO {
     @Query("SELECT * FROM excursions ORDER BY excursionId ASC")
     LiveData<List<Excursion>> readData();
 
-    @Query("SELECT * FROM excursions WHERE excursionName LIKE :searchQuery")
-    LiveData<List<Excursion>> searchDatabase(String searchQuery);
+    @Query("SELECT * FROM excursions WHERE vacationId=:vac AND excursionName LIKE :searchQuery ORDER BY excursionId ASC")
+    LiveData<List<Excursion>> searchDatabase(int vac, String searchQuery);
 
     @Query("SELECT * FROM excursions WHERE vacationId=:vac ORDER BY excursionId ASC")
     LiveData<List<Excursion>> getAssociatedExcursions(int vac);

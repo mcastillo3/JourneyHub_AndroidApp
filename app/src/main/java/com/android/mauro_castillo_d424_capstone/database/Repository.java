@@ -110,15 +110,12 @@ public class Repository {
         return allExcursions;
     }
 
-    public LiveData<List<Excursion>> searchEDatabase(String searchQuery) {
-        return mExcursionDAO.searchDatabase("%" + searchQuery + "%");
+    public LiveData<List<Excursion>> searchEDatabase(int vacationID, String searchQuery) {
+        return mExcursionDAO.searchDatabase(vacationID,"%" + searchQuery + "%");
     }
 
     public LiveData<List<Excursion>> getAssociatedExcursions(int vacationId) {
-        databaseExecutor.execute(() -> {
-            allExcursions = mExcursionDAO.getAssociatedExcursions(vacationId);
-        });
-        return allExcursions;
+        return mExcursionDAO.getAssociatedExcursions(vacationId);
     }
 
 }

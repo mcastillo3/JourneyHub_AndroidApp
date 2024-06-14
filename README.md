@@ -35,3 +35,4 @@ Added searchview to menu vacation list. Created VacationView Model to handle sea
 Optimized code for "adding samples" in VacationList.
 Added searchview to menu vacation list. Created ExcursionView Model to handle search functionality and displaying excursions.
 Optimized code for "adding samples" in VacationDetails.
+Created a ExcursionViewModelFactory viewmodel to pass the associated vacation int to ExcursionViewModel to get excursions.
