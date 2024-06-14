@@ -11,11 +11,4 @@
         android:id="@+id/notify" />
     <item android:title="Delete Excursion"
         android:id="@+id/deleteExcursion" />
-
-    <item
-        android:id="@+id/search"
-        android:title="@string/search_title"
-        android:icon="@drawable/ic_search"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="collapseActionView|ifRoom" />
 </menu>

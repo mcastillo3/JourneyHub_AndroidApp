@@ -36,3 +36,5 @@ Optimized code for "adding samples" in VacationList.
 Added searchview to menu vacation list. Created ExcursionView Model to handle search functionality and displaying excursions.
 Optimized code for "adding samples" in VacationDetails.
 Created a ExcursionViewModelFactory viewmodel to pass the associated vacation int to ExcursionViewModel to get excursions.
+Added login screen to activity_main.
+Refactored MainActivity class and added login validation, using sample login username: "user" and password: "1234".
