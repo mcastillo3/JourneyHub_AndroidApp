@@ -7,15 +7,18 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.android.mauro_castillo_d424_capstone.dao.ExcursionDAO;
+import com.android.mauro_castillo_d424_capstone.dao.UserDAO;
 import com.android.mauro_castillo_d424_capstone.dao.VacationDAO;
 import com.android.mauro_castillo_d424_capstone.entities.Excursion;
+import com.android.mauro_castillo_d424_capstone.entities.User;
 import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
-@Database(entities = {Vacation.class, Excursion.class}, version = 7, exportSchema = false)
+@Database(entities = {Vacation.class, Excursion.class, User.class}, version = 8, exportSchema = false)
 public abstract class VacationDatabaseBuilder extends RoomDatabase {
 
     public abstract VacationDAO vacationDAO();
     public abstract ExcursionDAO excursionDAO();
+    public abstract UserDAO userDAO();
     private static volatile VacationDatabaseBuilder INSTANCE;
 
     static VacationDatabaseBuilder getDatabase(final Context context) {

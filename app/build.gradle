@@ -43,6 +43,9 @@ dependencies {
     implementation 'org.apache.poi:poi:5.2.2'
     implementation 'org.apache.poi:poi-ooxml:5.2.2'
 
+    // BCrypt library
+    implementation 'org.mindrot:jbcrypt:0.4'
+
     // Room components
     implementation "androidx.room:room-runtime:$roomVersion"
     annotationProcessor "androidx.room:room-compiler:$roomVersion"

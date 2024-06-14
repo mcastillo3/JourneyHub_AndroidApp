@@ -41,3 +41,5 @@ Refactored MainActivity class and added login validation, using sample login use
 Optimized code for adding new excursions and vacations.
 Added apache POI library to gradle build for generating excel reports.
 Created ReportGenerator class to write and generate an excel report with all vacations.
+Refactored login functionality on MainActivity to use a secure method of registering a user and hashing the password.
+Added validation to login attempt.

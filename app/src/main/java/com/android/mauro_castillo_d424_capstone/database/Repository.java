@@ -5,8 +5,10 @@ import android.app.Application;
 import androidx.lifecycle.LiveData;
 
 import com.android.mauro_castillo_d424_capstone.dao.ExcursionDAO;
+import com.android.mauro_castillo_d424_capstone.dao.UserDAO;
 import com.android.mauro_castillo_d424_capstone.dao.VacationDAO;
 import com.android.mauro_castillo_d424_capstone.entities.Excursion;
+import com.android.mauro_castillo_d424_capstone.entities.User;
 import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.concurrent.Executors;
 public class Repository {
     private ExcursionDAO mExcursionDAO;
     private VacationDAO mVacationDAO;
+    private UserDAO mUserDAO;
     private List<Vacation> mAllVacations;
     private List<Excursion> mAllExcursions;
     private LiveData<List<Vacation>> allVacations;
@@ -28,8 +31,27 @@ public class Repository {
         VacationDatabaseBuilder db = VacationDatabaseBuilder.getDatabase(application);
         mExcursionDAO = db.excursionDAO();
         mVacationDAO = db.vacationDAO();
+        mUserDAO = db.userDAO();
         allVacations = mVacationDAO.readData();
         allExcursions = mExcursionDAO.readData();
+    }
+
+    public void insert(User user) throws InterruptedException {
+        databaseExecutor.execute(()-> {
+            mUserDAO.insert(user);
+        });
+        Thread.sleep(1000);
+    }
+
+    public void getUserByUserName(String username, RepositoryCallback<User> callBack) {
+        databaseExecutor.execute(() -> {
+            User user = mUserDAO.getUserByUserName(username);
+            callBack.onComplete(user);
+        });
+    }
+
+    public interface RepositoryCallback<T> {
+        void onComplete(T result);
     }
 
     public List<Vacation> getmAllVacations() throws InterruptedException {
