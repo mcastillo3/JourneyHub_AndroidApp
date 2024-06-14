@@ -30,18 +30,13 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, VacationList.class);
                     startActivity(intent);
                     Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                    userName.setText("");
+                    password.setText("");
+
                 } else {
                     Toast.makeText(MainActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-//        Button button = findViewById(R.id.button);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(MainActivity.this, VacationList.class);
-//                startActivity(intent);
-//            }
-//        });
     }
 }

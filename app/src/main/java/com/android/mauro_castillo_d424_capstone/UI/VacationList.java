@@ -21,6 +21,7 @@ public class VacationList extends AppCompatActivity {
 
     private Repository repository;
     private VacationViewModel vacationViewModel;
+    private int vacationID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +77,8 @@ public class VacationList extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // return to landing page
-        if (item.getItemId() == android.R.id.home) {
+        // return to login screen
+        if (item.getItemId() == R.id.logOut) {
             this.finish();
             return true;
         }
@@ -94,8 +95,9 @@ public class VacationList extends AppCompatActivity {
     }
 
     private void addSampleVacations() throws InterruptedException {
-        Vacation vacation1 = new Vacation(1,"Bermuda Trip","Beach Resort", "01/01/25", "01/07/25");
-        Vacation vacation2 = new Vacation(2,"London Trip","Downtown Hotel", "02/01/25", "02/05/25");
+        if (repository.getmAllVacations().isEmpty()) { vacationID = 1; }
+        Vacation vacation1 = new Vacation(vacationID++,"Bermuda Trip","Beach Resort", "01/01/25", "01/07/25");
+        Vacation vacation2 = new Vacation(vacationID++,"London Trip","Downtown Hotel", "02/01/25", "02/05/25");
         repository.insert(vacation1);
         repository.insert(vacation2);
     }

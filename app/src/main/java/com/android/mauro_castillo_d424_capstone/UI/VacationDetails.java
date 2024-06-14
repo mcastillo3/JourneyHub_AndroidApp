@@ -43,6 +43,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
     String startDate;
     String endDate;
     int vacationId;
+    int excursionID;
     EditText editVacation;
     EditText editHotel;
     TextView editStartDate;
@@ -79,7 +80,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // get intents and instantiate fields from vacation list
+        // get intents from vacation list and instantiate fields
         editVacation = findViewById(R.id.vacation_text);
         editHotel = findViewById(R.id.hotel_text);
         editStartDate = findViewById(R.id.startDate_text);
@@ -179,21 +180,18 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         } else {
             validateDate = true;
         }
-
         return validateDate;
     }
 
     private void updateLabelStart() {
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-
         editStartDate.setText(sdf.format(myCalendarStart.getTime()));
     }
 
     private void updateLabelEnd() {
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-
         editEndDate.setText(sdf.format(myCalendarEnd.getTime()));
     }
 
@@ -211,14 +209,12 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 excursionViewModel.setSearchQuery(query);
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
                 excursionViewModel.setSearchQuery(newText);
                 return false;
             }
         });
-
         return true;
     }
 
@@ -230,82 +226,23 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         }
 
         if(item.getItemId()== R.id.vacationSave){
-            Vacation vacation;
-            if (vacationId == -1) {
-                try {
-                    if (repository.getmAllVacations().isEmpty()) vacationId = 1;
-                    else
-                        vacationId = repository.getmAllVacations().get(repository.getmAllVacations().size() - 1).getVacationId() + 1;
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                vacation = new Vacation(vacationId, editVacation.getText().toString(), editHotel.getText().toString(),
-                        editStartDate.getText().toString(), editEndDate.getText().toString());
-                try {
-                    repository.insert(vacation);
-                    Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been saved", Toast.LENGTH_LONG).show();
-                    VacationDetails.this.finish();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                try{
-                    if (!editVacation.getText().toString().isEmpty()) {
-                        vacationName = editVacation.getText().toString();
-                    }
-                    if (!editHotel.getText().toString().isEmpty()) {
-                        hotelName = editHotel.getText().toString();
-                    }
-                    if (!editStartDate.getText().toString().isEmpty()) {
-                        startDate = editStartDate.getText().toString();
-                    }
-                    if (!editEndDate.getText().toString().isEmpty()) {
-                        endDate = editEndDate.getText().toString();
-                    }
-                    vacation = new Vacation(vacationId, vacationName, hotelName, startDate, endDate);
-                    repository.update(vacation);
-                    Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been updated", Toast.LENGTH_LONG).show();
-                    VacationDetails.this.finish();
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+            try {
+                saveVacation();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
             return true;
         }
+
         if(item.getItemId()== R.id.vacationDelete) {
-            try {
-                for (Vacation vac : repository.getmAllVacations()) {
-                    if (vac.getVacationId() == vacationId) currentVacation = vac;
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            numExcursions = 0;
-            try {
-                for (Excursion excursion : repository.getmAllExcursions()) {
-                    if (excursion.getVacationId() == vacationId) ++numExcursions;
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            if (numExcursions == 0) {
-                try {
-                    repository.delete(currentVacation);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                Toast.makeText(VacationDetails.this, currentVacation.getVacationName() + " was deleted", Toast.LENGTH_LONG).show();
-                VacationDetails.this.finish();
-            } else {
-                Toast.makeText(VacationDetails.this, "Can't delete a vacation with excursions", Toast.LENGTH_LONG).show();
-            }
+            deleteVacation();
             return true;
         }
+
         if (item.getItemId() == R.id.vacationNotify) {
             String startDateFromScreen = editStartDate.getText().toString();
             String endDateFromScreen = editEndDate.getText().toString();
+
             String myFormat = "MM/dd/yy";
             SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
             Date myStartDate = null;
@@ -335,16 +272,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
             return true;
         }
         if (item.getItemId() == R.id.vacationShare) {
-            String finalShare = getString();
-
-            Intent sentIntent = new Intent();
-            sentIntent.setAction(Intent.ACTION_SEND);
-            sentIntent.putExtra(Intent.EXTRA_TITLE, vacationName);
-            sentIntent.putExtra(Intent.EXTRA_TEXT, finalShare);
-            sentIntent.setType("text/plain");
-            Intent shareIntent = Intent.createChooser(sentIntent, null);
-            startActivity(shareIntent);
-
+            shareVacation();
             return true;
         }
         // add sample excursions
@@ -363,48 +291,97 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         if (vacationId == -1)
             Toast.makeText(VacationDetails.this, "Please save vacation before adding excursions", Toast.LENGTH_LONG).show();
         else {
-            Excursion excursion1 = new Excursion(1, "Snorkeling", "01/02/25", vacationId);
-            Excursion excursion2 = new Excursion(2, "Cooking Lesson", "02/02/25", vacationId);
+            if (repository.getmAllExcursions().isEmpty()) excursionID = 1;
+            Log.d("SAMPLEADD", "Added sample to: " + vacationId);
+            Excursion excursion1 = new Excursion(excursionID++, "Snorkeling", "01/02/25", vacationId);
+            Excursion excursion2 = new Excursion(excursionID++, "Cooking Lesson", "02/02/25", vacationId);
             repository.insert(excursion1);
             repository.insert(excursion2);
-//            int excursionID;
-//            try {
-//                if (repository.getAllExcursions().isEmpty()) excursionID = 1;
-//                else {
-//                    try {
-//                        excursionID = repository.getAllExcursions().get(repository.getAllExcursions().size() - 1).getExcursionId() + 1;
-//                    } catch (InterruptedException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            Excursion excursion = new Excursion(excursionID, "Snorkeling", "01/02/25", vacationId);
-//            try {
-//                repository.insert(excursion);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            excursion = new Excursion(++excursionID, "Cooking Lesson", "02/02/25", vacationId);
-//            try {
-//                repository.insert(excursion);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
-//            final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
-//            recyclerView.setAdapter(excursionAdapter);
-//            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//            List<Excursion> filteredExcursions = new ArrayList<>();
-//            try {
-//                for (Excursion p : repository.getAllExcursions()) {
-//                    if (p.getVacationId() == vacationId) filteredExcursions.add(p);
-//                }
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//            excursionAdapter.setExcursions(filteredExcursions);
+        }
+    }
+
+    private void shareVacation() {
+        String finalShare = getString();
+        Intent sentIntent = new Intent();
+        sentIntent.setAction(Intent.ACTION_SEND);
+        sentIntent.putExtra(Intent.EXTRA_TITLE, vacationName);
+        sentIntent.putExtra(Intent.EXTRA_TEXT, finalShare);
+        sentIntent.setType("text/plain");
+        Intent shareIntent = Intent.createChooser(sentIntent, null);
+        startActivity(shareIntent);
+    }
+
+    private void saveVacation() throws InterruptedException {
+        Vacation vacation;
+        if (vacationId == -1) {
+            try {
+                if (repository.getmAllVacations().isEmpty()) vacationId = 1;
+                else
+                    vacationId = repository.getmAllVacations().get(repository.getmAllVacations().size() - 1).getVacationId() + 1;
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            vacation = new Vacation(vacationId, editVacation.getText().toString(), editHotel.getText().toString(),
+                    editStartDate.getText().toString(), editEndDate.getText().toString());
+            try {
+                repository.insert(vacation);
+                Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been saved", Toast.LENGTH_LONG).show();
+                VacationDetails.this.finish();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            try{
+                if (!editVacation.getText().toString().isEmpty()) {
+                    vacationName = editVacation.getText().toString();
+                }
+                if (!editHotel.getText().toString().isEmpty()) {
+                    hotelName = editHotel.getText().toString();
+                }
+                if (!editStartDate.getText().toString().isEmpty()) {
+                    startDate = editStartDate.getText().toString();
+                }
+                if (!editEndDate.getText().toString().isEmpty()) {
+                    endDate = editEndDate.getText().toString();
+                }
+                vacation = new Vacation(vacationId, vacationName, hotelName, startDate, endDate);
+                repository.update(vacation);
+                Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been updated", Toast.LENGTH_LONG).show();
+                VacationDetails.this.finish();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void deleteVacation() {
+        try {
+            for (Vacation vac : repository.getmAllVacations()) {
+                if (vac.getVacationId() == vacationId) currentVacation = vac;
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        numExcursions = 0;
+        try {
+            for (Excursion excursion : repository.getmAllExcursions()) {
+                if (excursion.getVacationId() == vacationId) ++numExcursions;
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (numExcursions == 0) {
+            try {
+                repository.delete(currentVacation);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            Toast.makeText(VacationDetails.this, currentVacation.getVacationName() + " was deleted", Toast.LENGTH_LONG).show();
+            VacationDetails.this.finish();
+        } else {
+            Toast.makeText(VacationDetails.this, "Can't delete a vacation with excursions", Toast.LENGTH_LONG).show();
         }
     }
 

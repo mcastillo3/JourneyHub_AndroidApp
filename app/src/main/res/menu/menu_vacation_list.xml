@@ -5,10 +5,14 @@
     <item android:title="Add sample vacations"
         android:id="@+id/addSampleVacations" />
 
+    <item android:title="Logout"
+        android:id="@+id/logOut" />
+
     <item
         android:id="@+id/search"
         android:title="@string/search_title"
         android:icon="@drawable/ic_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="collapseActionView|ifRoom" />
+
 </menu>
