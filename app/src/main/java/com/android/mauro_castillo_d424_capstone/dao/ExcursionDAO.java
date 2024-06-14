@@ -1,5 +1,6 @@
 package com.android.mauro_castillo_d424_capstone.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -8,6 +9,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.android.mauro_castillo_d424_capstone.entities.Excursion;
+import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
 import java.util.List;
 
@@ -27,5 +29,14 @@ public interface ExcursionDAO {
     List<Excursion> getAllExcursions();
 
     @Query("SELECT * FROM excursions WHERE vacationId=:vac ORDER BY excursionId ASC")
-    List<Excursion> getAssociatedExcursions(int vac);
+    List<Excursion> getmAssociatedExcursions(int vac);
+
+    @Query("SELECT * FROM excursions ORDER BY excursionId ASC")
+    LiveData<List<Excursion>> readData();
+
+    @Query("SELECT * FROM excursions WHERE excursionName LIKE :searchQuery")
+    LiveData<List<Excursion>> searchDatabase(String searchQuery);
+
+    @Query("SELECT * FROM excursions WHERE vacationId=:vac ORDER BY excursionId ASC")
+    LiveData<List<Excursion>> getAssociatedExcursions(int vac);
 }

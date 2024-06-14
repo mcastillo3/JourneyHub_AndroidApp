@@ -2,24 +2,20 @@ package com.android.mauro_castillo_d424_capstone.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import androidx.appcompat.widget.SearchView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SearchView;
 
 import com.android.mauro_castillo_d424_capstone.R;
 import com.android.mauro_castillo_d424_capstone.database.Repository;
 import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.List;
 
 public class VacationList extends AppCompatActivity {
 
@@ -86,9 +82,9 @@ public class VacationList extends AppCompatActivity {
             return true;
         }
         // add sample vacations
-        if(item.getItemId() == R.id.sample) {
+        if(item.getItemId() == R.id.addSampleVacations) {
             try {
-                addSampleData();
+                addSampleVacations();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -97,7 +93,7 @@ public class VacationList extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void addSampleData() throws InterruptedException {
+    private void addSampleVacations() throws InterruptedException {
         Vacation vacation1 = new Vacation(1,"Bermuda Trip","Beach Resort", "01/01/25", "01/07/25");
         Vacation vacation2 = new Vacation(2,"London Trip","Downtown Hotel", "02/01/25", "02/05/25");
         repository.insert(vacation1);

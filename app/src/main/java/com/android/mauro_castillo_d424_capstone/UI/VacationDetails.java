@@ -3,9 +3,6 @@ package com.android.mauro_castillo_d424_capstone.UI;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.PendingIntent;
-import android.app.SearchManager;
-import android.app.SearchableInfo;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,14 +11,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SearchView;
 
 import com.android.mauro_castillo_d424_capstone.R;
 import com.android.mauro_castillo_d424_capstone.database.Repository;
@@ -52,6 +50,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
     DatePickerDialog.OnDateSetListener startDatePicker;
     DatePickerDialog.OnDateSetListener endDatePicker;
     Repository repository;
+    private ExcursionViewModel excursionViewModel;
     Vacation currentVacation;
     int numExcursions;
     final Calendar myCalendarStart = Calendar.getInstance();
@@ -61,14 +60,30 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vacation_details);
+        repository = new Repository(getApplication());
 
+        // set up floating "add" button
         FloatingActionButton fab = findViewById(R.id.floatingActionButton2);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
+                intent.putExtra("vacID", vacationId);
+                startActivity(intent);
+            }
+        });
 
+        // set up the recyclerview
+        RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
+        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
+        recyclerView.setAdapter(excursionAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // get intents and instantiate fields from vacation list
         editVacation = findViewById(R.id.vacation_text);
         editHotel = findViewById(R.id.hotel_text);
         editStartDate = findViewById(R.id.startDate_text);
         editEndDate = findViewById(R.id.endDate_text);
-
         vacationId = getIntent().getIntExtra("id", -1);
         vacationName = getIntent().getStringExtra("vacation");
         hotelName = getIntent().getStringExtra("hotel");
@@ -78,6 +93,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         editVacation.setHint(vacationName);
         editHotel.setHint(hotelName);
 
+        // set date fields
         if (startDate == null) {
             editStartDate.setHint("start date");
         } else {
@@ -88,34 +104,10 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         } else {
             editEndDate.setHint(endDate);
         }
-
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
-                intent.putExtra("vacID", vacationId);
-                startActivity(intent);
-            }
-        });
-
-        RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
-        repository = new Repository(getApplication());
-        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
-        recyclerView.setAdapter(excursionAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<Excursion> filteredExcursions = new ArrayList<>();
-        try {
-            for (Excursion e : repository.getAllExcursions()) {
-                if (e.getVacationId() == vacationId) filteredExcursions.add(e);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        excursionAdapter.setExcursions(filteredExcursions);
-
+        // set calendar date picker
         editStartDate.setOnClickListener(v -> {
             final Calendar c = Calendar.getInstance();
             String mYear = String.valueOf(c.get(Calendar.YEAR));
@@ -172,6 +164,10 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 updateLabelEnd();
             }
         };
+
+        // set up view model
+        excursionViewModel = new ViewModelProvider(this).get(ExcursionViewModel.class);
+        excursionViewModel.getAllExcursions().observe(this, excursionAdapter::setExcursions);
     }
 
     public boolean validateVacationDates (Calendar startDate, Calendar endDate) {
@@ -204,6 +200,26 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
 
     public boolean onCreateOptionsMenu (Menu menu) {
         getMenuInflater().inflate(R.menu.menu_vacation_details, menu);
+
+        // set up the search view
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint("search excursions");
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                excursionViewModel.setSearchQuery(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                excursionViewModel.setSearchQuery(newText);
+                return false;
+            }
+        });
+
         return true;
     }
 
@@ -268,7 +284,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
 
             numExcursions = 0;
             try {
-                for (Excursion excursion : repository.getAllExcursions()) {
+                for (Excursion excursion : repository.getmAllExcursions()) {
                     if (excursion.getVacationId() == vacationId) ++numExcursions;
                 }
             } catch (InterruptedException e) {
@@ -332,52 +348,65 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
 
             return true;
         }
+        // add sample excursions
         if(item.getItemId()== R.id.addSampleExcursions){
-            if (vacationId == -1)
-                Toast.makeText(VacationDetails.this, "Please save vacation before adding excursions", Toast.LENGTH_LONG).show();
-            else {
-                int excursionID;
-                try {
-                    if (repository.getAllExcursions().isEmpty()) excursionID = 1;
-                    else {
-                        try {
-                            excursionID = repository.getAllExcursions().get(repository.getAllExcursions().size() - 1).getExcursionId() + 1;
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                Excursion excursion = new Excursion(excursionID, "Snorkeling", "01/02/25", vacationId);
-                try {
-                    repository.insert(excursion);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                excursion = new Excursion(++excursionID, "Cooking Lesson", "02/02/25", vacationId);
-                try {
-                    repository.insert(excursion);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
-                final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
-                recyclerView.setAdapter(excursionAdapter);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this));
-                List<Excursion> filteredExcursions = new ArrayList<>();
-                try {
-                    for (Excursion p : repository.getAllExcursions()) {
-                        if (p.getVacationId() == vacationId) filteredExcursions.add(p);
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                excursionAdapter.setExcursions(filteredExcursions);
-                return true;
+            try {
+                addSampleExcursions();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addSampleExcursions() throws InterruptedException {
+        if (vacationId == -1)
+            Toast.makeText(VacationDetails.this, "Please save vacation before adding excursions", Toast.LENGTH_LONG).show();
+        else {
+            Excursion excursion1 = new Excursion(1, "Snorkeling", "01/02/25", vacationId);
+            Excursion excursion2 = new Excursion(2, "Cooking Lesson", "02/02/25", vacationId);
+            repository.insert(excursion1);
+            repository.insert(excursion2);
+//            int excursionID;
+//            try {
+//                if (repository.getAllExcursions().isEmpty()) excursionID = 1;
+//                else {
+//                    try {
+//                        excursionID = repository.getAllExcursions().get(repository.getAllExcursions().size() - 1).getExcursionId() + 1;
+//                    } catch (InterruptedException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            Excursion excursion = new Excursion(excursionID, "Snorkeling", "01/02/25", vacationId);
+//            try {
+//                repository.insert(excursion);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            excursion = new Excursion(++excursionID, "Cooking Lesson", "02/02/25", vacationId);
+//            try {
+//                repository.insert(excursion);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
+//            final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
+//            recyclerView.setAdapter(excursionAdapter);
+//            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//            List<Excursion> filteredExcursions = new ArrayList<>();
+//            try {
+//                for (Excursion p : repository.getAllExcursions()) {
+//                    if (p.getVacationId() == vacationId) filteredExcursions.add(p);
+//                }
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//            excursionAdapter.setExcursions(filteredExcursions);
+        }
     }
 
     @NonNull
@@ -388,32 +417,13 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         StringBuilder excursions = new StringBuilder();
         excursions.append("Excursions: \n");
         try {
-            for (Excursion e : repository.getAllExcursions()) {
+            for (Excursion e : repository.getmAllExcursions()) {
                 if (e.getVacationId() == vacationId) excursions.append(e.getExcursionName()).append("\n");
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
         return shareHotelName + shareStartDate + shareEndDate + excursions;
-    }
-
-    @Override
-    public void onResume() {
-
-        super.onResume();
-        RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
-        final ExcursionAdapter excursionAdapter = new ExcursionAdapter(this);
-        recyclerView.setAdapter(excursionAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<Excursion> filteredExcursions = new ArrayList<>();
-        try {
-            for (Excursion p : repository.getAllExcursions()) {
-                if (p.getVacationId() == vacationId) filteredExcursions.add(p);
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        excursionAdapter.setExcursions(filteredExcursions);
     }
 
     public void scheduleNotification(long trigger, String notificationType) {
@@ -436,5 +446,10 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
     @Override
     public boolean onQueryTextChange(String newText) {
         return false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }

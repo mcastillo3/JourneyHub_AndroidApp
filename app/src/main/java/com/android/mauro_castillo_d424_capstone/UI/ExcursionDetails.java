@@ -173,10 +173,10 @@ public class ExcursionDetails extends AppCompatActivity {
             Excursion excursion;
             if (excursionId == -1) {
                 try {
-                    if (repository.getAllExcursions().isEmpty()) excursionId = 1;
+                    if (repository.getmAllExcursions().isEmpty()) excursionId = 1;
                     else {
                         try {
-                            excursionId = repository.getAllExcursions().get(repository.getAllExcursions().size() - 1)
+                            excursionId = repository.getmAllExcursions().get(repository.getmAllExcursions().size() - 1)
                                     .getExcursionId() + 1;
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
@@ -243,7 +243,7 @@ public class ExcursionDetails extends AppCompatActivity {
         }
         if (item.getItemId() == R.id.deleteExcursion) {
             try {
-                for (Excursion exc : repository.getAllExcursions()) {
+                for (Excursion exc : repository.getmAllExcursions()) {
                     if (exc.getExcursionId() == excursionId) currentExcursion = exc;
                 }
             } catch (InterruptedException e) {

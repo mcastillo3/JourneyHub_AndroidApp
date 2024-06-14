@@ -19,6 +19,7 @@ public class Repository {
     private List<Vacation> mAllVacations;
     private List<Excursion> mAllExcursions;
     private LiveData<List<Vacation>> allVacations;
+    private LiveData<List<Excursion>> allExcursions;
 
     private static int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
@@ -28,6 +29,7 @@ public class Repository {
         mExcursionDAO = db.excursionDAO();
         mVacationDAO = db.vacationDAO();
         allVacations = mVacationDAO.readData();
+        allExcursions = mExcursionDAO.readData();
     }
 
     public List<Vacation> getmAllVacations() throws InterruptedException {
@@ -61,13 +63,13 @@ public class Repository {
 
     public List<Vacation> getmAssociatedExcursions(int vacationId) throws InterruptedException {
         databaseExecutor.execute(() -> {
-            mAllExcursions = mExcursionDAO.getAssociatedExcursions(vacationId);
+            mAllExcursions = mExcursionDAO.getmAssociatedExcursions(vacationId);
         });
         Thread.sleep(1000);
         return mAllVacations;
     }
 
-    public List<Excursion> getAllExcursions() throws InterruptedException {
+    public List<Excursion> getmAllExcursions() throws InterruptedException {
         databaseExecutor.execute(()->{
             mAllExcursions = mExcursionDAO.getAllExcursions();
         });
@@ -100,7 +102,23 @@ public class Repository {
         return allVacations;
     }
 
-    public LiveData<List<Vacation>> searchDatabase(String searchQuery) {
+    public LiveData<List<Vacation>> searchVDatabase(String searchQuery) {
         return mVacationDAO.searchDatabase("%" + searchQuery + "%");
     }
+
+    public LiveData<List<Excursion>> getAllExcursions() throws InterruptedException {
+        return allExcursions;
+    }
+
+    public LiveData<List<Excursion>> searchEDatabase(String searchQuery) {
+        return mExcursionDAO.searchDatabase("%" + searchQuery + "%");
+    }
+
+    public LiveData<List<Excursion>> getAssociatedExcursions(int vacationId) {
+        databaseExecutor.execute(() -> {
+            allExcursions = mExcursionDAO.getAssociatedExcursions(vacationId);
+        });
+        return allExcursions;
+    }
+
 }

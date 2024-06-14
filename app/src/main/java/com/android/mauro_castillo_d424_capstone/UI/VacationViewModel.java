@@ -1,7 +1,6 @@
 package com.android.mauro_castillo_d424_capstone.UI;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -25,7 +24,7 @@ public class VacationViewModel extends AndroidViewModel {
         super(application);
         mRepository = new Repository(application);
 
-        // display current vacations in database
+        // display current vacations from database
         LiveData<List<Vacation>> initialData = mRepository.getAllVacations();
         searchResults.addSource(initialData, searchResults::setValue);
         currentSource = initialData;
@@ -40,7 +39,7 @@ public class VacationViewModel extends AndroidViewModel {
                     throw new RuntimeException(e);
                 }
             } else {
-                newSource = mRepository.searchDatabase(query);
+                newSource = mRepository.searchVDatabase(query);
             }
             updateSource(newSource);
         });
