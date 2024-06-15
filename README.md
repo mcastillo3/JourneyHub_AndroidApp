@@ -43,3 +43,4 @@ Added apache POI library to gradle build for generating excel reports.
 Created ReportGenerator class to write and generate an excel report with all vacations.
 Refactored login functionality on MainActivity to use a secure method of registering a user and hashing the password.
 Added validation to login attempt.
+Added validation to generate report. Removed unused spinner in ExcursionDetails.

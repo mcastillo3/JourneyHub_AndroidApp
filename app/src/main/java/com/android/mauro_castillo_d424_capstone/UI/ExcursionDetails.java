@@ -81,10 +81,10 @@ public class ExcursionDetails extends AppCompatActivity {
         for (Vacation vacation : vacationArrayList) {
             vacationIdList.add(vacation.getVacationId());
         }
-        ArrayAdapter<Vacation> vacationIdAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, vacationArrayList);
-        Spinner spinner = findViewById(R.id.spinner);
-        spinner.setAdapter(vacationIdAdapter);
+//        ArrayAdapter<Vacation> vacationIdAdapter = new ArrayAdapter<>(this,
+//                android.R.layout.simple_spinner_item, vacationArrayList);
+//        Spinner spinner = findViewById(R.id.spinner);
+//        spinner.setAdapter(vacationIdAdapter);
 
         editDate.setOnClickListener(v -> {
             final Calendar c = Calendar.getInstance();

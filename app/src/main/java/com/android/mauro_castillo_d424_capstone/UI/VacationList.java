@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -108,8 +109,15 @@ public class VacationList extends AppCompatActivity {
 
     private void generateReport() throws InterruptedException {
         List<Vacation> vacations = repository.getmAllVacations();
-        ReportGenerator reportGenerator = new ReportGenerator();
-        reportGenerator.generateExcelReport(vacations, getExternalFilesDir(null) + "/VacationReport.xlsx");
+        if (vacations.isEmpty()) {
+            Toast.makeText(this, "Please add vacations first", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            // generate excel report and save to '/storage/emulated/0/Android/data/VacationReport.xlsx/files/'
+            ReportGenerator reportGenerator = new ReportGenerator();
+            reportGenerator.generateExcelReport(vacations, getExternalFilesDir(null) + "/VacationReport.xlsx");
+            Toast.makeText(this, "Your report can be found in your phone directory", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void addSampleVacations() throws InterruptedException {
