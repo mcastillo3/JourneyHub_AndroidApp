@@ -13,7 +13,7 @@ import com.android.mauro_castillo_d424_capstone.entities.Excursion;
 import com.android.mauro_castillo_d424_capstone.entities.User;
 import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
-@Database(entities = {Vacation.class, Excursion.class, User.class}, version = 8, exportSchema = false)
+@Database(entities = {Vacation.class, Excursion.class, User.class}, version = 10, exportSchema = false)
 public abstract class VacationDatabaseBuilder extends RoomDatabase {
 
     public abstract VacationDAO vacationDAO();

@@ -38,24 +38,29 @@ import java.util.Random;
 
 public class VacationDetails extends AppCompatActivity implements androidx.appcompat.widget.SearchView.OnQueryTextListener {
 
-    String vacationName;
-    String hotelName;
-    String startDate;
-    String endDate;
-    int vacationId;
-    int excursionID;
-    EditText editVacation;
-    EditText editHotel;
-    TextView editStartDate;
-    TextView editEndDate;
-    DatePickerDialog.OnDateSetListener startDatePicker;
-    DatePickerDialog.OnDateSetListener endDatePicker;
-    Repository repository;
+    private String vacationName;
+    private String hotelName;
+    private String startDate;
+    private String endDate;
+
+    private int vacationId;
+    private int excursionID;
+    private int userID;
+
+    private EditText editVacation;
+    private EditText editHotel;
+    private TextView editStartDate;
+    private TextView editEndDate;
+
+    private DatePickerDialog.OnDateSetListener startDatePicker;
+    private DatePickerDialog.OnDateSetListener endDatePicker;
+    private final Calendar myCalendarStart = Calendar.getInstance();
+    private final Calendar myCalendarEnd = Calendar.getInstance();
+
+    private Repository repository;
     private ExcursionViewModel excursionViewModel;
-    Vacation currentVacation;
-    int numExcursions;
-    final Calendar myCalendarStart = Calendar.getInstance();
-    final Calendar myCalendarEnd = Calendar.getInstance();
+    private Vacation currentVacation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +95,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         hotelName = getIntent().getStringExtra("hotel");
         startDate = getIntent().getStringExtra("startDate");
         endDate = getIntent().getStringExtra("endDate");
+        userID = getIntent().getIntExtra("userID", -1);
 
         editVacation.setHint(vacationName);
         editHotel.setHint(hotelName);
@@ -322,7 +328,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 throw new RuntimeException(e);
             }
             vacation = new Vacation(vacationId, editVacation.getText().toString(), editHotel.getText().toString(),
-                    editStartDate.getText().toString(), editEndDate.getText().toString());
+                    editStartDate.getText().toString(), editEndDate.getText().toString(), userID);
             try {
                 repository.insert(vacation);
                 Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been saved", Toast.LENGTH_LONG).show();
@@ -344,7 +350,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 if (!editEndDate.getText().toString().isEmpty()) {
                     endDate = editEndDate.getText().toString();
                 }
-                vacation = new Vacation(vacationId, vacationName, hotelName, startDate, endDate);
+                vacation = new Vacation(vacationId, vacationName, hotelName, startDate, endDate, userID);
                 repository.update(vacation);
                 Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been updated", Toast.LENGTH_LONG).show();
                 VacationDetails.this.finish();
@@ -363,7 +369,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
             throw new RuntimeException(e);
         }
 
-        numExcursions = 0;
+        int numExcursions = 0;
         try {
             for (Excursion excursion : repository.getmAllExcursions()) {
                 if (excursion.getVacationId() == vacationId) ++numExcursions;

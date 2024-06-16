@@ -2,7 +2,6 @@ package com.android.mauro_castillo_d424_capstone.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,9 +14,6 @@ import com.android.mauro_castillo_d424_capstone.database.Repository;
 import com.android.mauro_castillo_d424_capstone.entities.User;
 
 import org.mindrot.jbcrypt.BCrypt;
-
-import java.util.Locale;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,19 +36,30 @@ public class MainActivity extends AppCompatActivity {
                 String enteredUserName = userName.getText().toString();
                 String enteredPassword = password.getText().toString();
 
-                if (enteredPassword.isEmpty() && enteredUserName.isEmpty()) {
+                if (enteredPassword.isEmpty() || enteredUserName.isEmpty()) {
                     Toast.makeText(MainActivity.this,"Please enter a Username and Password to register", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                String hashedPassword = hashPassword(enteredPassword);
-                User user = new User(enteredUserName, hashedPassword);
-                try {
-                    repository.insert(user);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                Toast.makeText(MainActivity.this,"User Registered!", Toast.LENGTH_SHORT).show();
+                // fetch user data asynchronously and check if user already exists
+                repository.getUserByUserName(enteredUserName, new Repository.RepositoryCallback<User>() {
+                    @Override
+                    public void onComplete(User user) {
+                        runOnUiThread(() -> {
+                            if (user != null && user.getUserName().equals(enteredUserName)) {
+                                Toast.makeText(MainActivity.this, "Username already exists. Please enter a new username.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                String hashedPassword = hashPassword(enteredPassword);
+                                User newUser = new User(enteredUserName, hashedPassword);
+                                try {
+                                    repository.insert(newUser);
+                                } catch (InterruptedException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                Toast.makeText(MainActivity.this, "User Registered!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
             }
         });
 
@@ -74,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             if (user != null && checkPassword(enteredPassword, user.getHashedPassword())) {
                                 Intent intent = new Intent(MainActivity.this, VacationList.class);
+                                intent.putExtra("userID", user.getUserID());
                                 startActivity(intent);
                                 Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                                 userName.setText("");

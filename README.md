@@ -44,3 +44,4 @@ Created ReportGenerator class to write and generate an excel report with all vac
 Refactored login functionality on MainActivity to use a secure method of registering a user and hashing the password.
 Added validation to login attempt.
 Added validation to generate report. Removed unused spinner in ExcursionDetails.
+Added validation to check if user already exists.
