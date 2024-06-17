@@ -18,8 +18,8 @@ import java.util.List;
 public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.ExcursionViewHolder> {
 
     private List<Excursion> mExcursions;
-    private final Context context;
-    private final LayoutInflater mInflater;
+    private final Context CONTEXT;
+    private final LayoutInflater INFLATER;
 
     public class ExcursionViewHolder extends RecyclerView.ViewHolder {
         private final TextView excursionItemView;
@@ -34,26 +34,26 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     final Excursion current = mExcursions.get(position);
-                    Intent intent = new Intent(context, ExcursionDetails.class);
+                    Intent intent = new Intent(CONTEXT, ExcursionDetails.class);
                     intent.putExtra("id", current.getExcursionId());
                     intent.putExtra("name", current.getExcursionName());
                     intent.putExtra("date", current.getExcursionDate());
                     intent.putExtra("vacID", current.getVacationId());
-                    context.startActivity(intent);
+                    CONTEXT.startActivity(intent);
                 }
             });
         }
     }
 
-    public ExcursionAdapter(Context context) {
-        mInflater = LayoutInflater.from(context);
-        this.context = context;
+    public ExcursionAdapter(Context CONTEXT) {
+        INFLATER = LayoutInflater.from(CONTEXT);
+        this.CONTEXT = CONTEXT;
     }
 
     @NonNull
     @Override
     public ExcursionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.excursion_list_item, parent, false);
+        View itemView = INFLATER.inflate(R.layout.excursion_list_item, parent, false);
         return new ExcursionViewHolder(itemView);
     }
 
@@ -71,15 +71,15 @@ public class ExcursionAdapter extends RecyclerView.Adapter<ExcursionAdapter.Excu
         }
     }
 
-    public void setExcursions (List<Excursion> excursions) {
-        mExcursions = excursions;
-        notifyDataSetChanged();
-    }
-
     @Override
     public int getItemCount() {
         if (mExcursions != null) {
             return mExcursions.size();
         } else return 0;
+    }
+
+    public void setExcursions (List<Excursion> excursions) {
+        mExcursions = excursions;
+        notifyDataSetChanged();
     }
 }

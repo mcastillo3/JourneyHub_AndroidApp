@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(() -> {
                             if (user != null && checkPassword(enteredPassword, user.getHashedPassword())) {
                                 Intent intent = new Intent(MainActivity.this, VacationList.class);
-                                intent.putExtra("userID", user.getUserID());
+                                intent.putExtra("userID", user.getUserId());
                                 startActivity(intent);
                                 Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
                                 userName.setText("");

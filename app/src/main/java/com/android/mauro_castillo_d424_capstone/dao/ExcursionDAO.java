@@ -9,7 +9,6 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.android.mauro_castillo_d424_capstone.entities.Excursion;
-import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public interface ExcursionDAO {
     void update(Excursion excursion);
 
     @Delete
-    void delete(Excursion delete);
+    void delete(Excursion excursion);
 
     @Query("SELECT * FROM EXCURSIONS ORDER BY excursionId ASC")
     List<Excursion> getAllExcursions();

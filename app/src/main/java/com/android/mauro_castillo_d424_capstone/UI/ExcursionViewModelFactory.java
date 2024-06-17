@@ -9,19 +9,19 @@ import androidx.lifecycle.ViewModelProvider;
 public class ExcursionViewModelFactory extends ViewModelProvider.NewInstanceFactory {
 
     @NonNull
-    private final Application application;
-    private final int vacationID;
+    private final Application APPLICATION;
+    private final int VACATION_ID;
 
     public ExcursionViewModelFactory(@NonNull Application application, int vacationID) {
-        this.application = application;
-        this.vacationID = vacationID;
+        this.APPLICATION = application;
+        this.VACATION_ID = vacationID;
     }
 
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         try {
-            return modelClass.getConstructor(Application.class, int.class).newInstance(application, vacationID);
+            return modelClass.getConstructor(Application.class, int.class).newInstance(APPLICATION, VACATION_ID);
         } catch (Exception e) {
             throw new RuntimeException("Cannot create instance of" + modelClass, e);
         }

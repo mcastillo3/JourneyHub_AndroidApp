@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,18 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.mauro_castillo_d424_capstone.R;
 import com.android.mauro_castillo_d424_capstone.entities.Vacation;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.VacationViewHolder> {
     private List<Vacation> mVacations;
-    private final Context context;
-    private final LayoutInflater mInflater;
+    private final Context CONTEXT;
+    private final LayoutInflater INFLATER;
 
-    public VacationAdapter(Context context) {
-        mInflater = LayoutInflater.from(context);
-        this.context = context;
+    public VacationAdapter(Context CONTEXT) {
+        INFLATER = LayoutInflater.from(CONTEXT);
+        this.CONTEXT = CONTEXT;
     }
 
     public class VacationViewHolder extends RecyclerView.ViewHolder {
@@ -39,13 +35,13 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     final Vacation current = mVacations.get(position);
-                    Intent intent = new Intent(context, VacationDetails.class);
+                    Intent intent = new Intent(CONTEXT, VacationDetails.class);
                     intent.putExtra("id", current.getVacationId());
                     intent.putExtra("vacation", current.getVacationName());
                     intent.putExtra("hotel", current.getHotelName());
                     intent.putExtra("startDate", current.getStartDate());
                     intent.putExtra("endDate", current.getEndDate());
-                    context.startActivity(intent);
+                    CONTEXT.startActivity(intent);
                 }
             });
         }
@@ -54,7 +50,7 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
     @NonNull
     @Override
     public VacationViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.vacation_list_item, parent, false);
+        View itemView = INFLATER.inflate(R.layout.vacation_list_item, parent, false);
         return new VacationViewHolder(itemView);
     }
 
@@ -77,5 +73,4 @@ public class VacationAdapter extends RecyclerView.Adapter<VacationAdapter.Vacati
         mVacations = vacations;
         notifyDataSetChanged();
     }
-
 }

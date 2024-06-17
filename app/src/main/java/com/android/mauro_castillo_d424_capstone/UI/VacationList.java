@@ -25,8 +25,8 @@ public class VacationList extends AppCompatActivity {
 
     private Repository repository;
     private VacationViewModel vacationViewModel;
-    private int vacationID;
-    private int userID;
+    private int vacationId;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,7 @@ public class VacationList extends AppCompatActivity {
         setContentView(R.layout.activity_vacation_list);
         repository = new Repository(getApplication());
 
-        userID = getIntent().getIntExtra("userID", -1);
+        userId = getIntent().getIntExtra("userID", -1);
 
         // set up floating "add" button
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
@@ -42,7 +42,7 @@ public class VacationList extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(VacationList.this, VacationDetails.class);
-                intent.putExtra("userID", userID);
+                intent.putExtra("userID", userId);
                 startActivity(intent);
             }
         });
@@ -125,9 +125,9 @@ public class VacationList extends AppCompatActivity {
     }
 
     private void addSampleVacations() throws InterruptedException {
-        if (repository.getmAllVacations().isEmpty()) { vacationID = 1; }
-        Vacation vacation1 = new Vacation(vacationID++,"Bermuda Trip","Beach Resort", "01/01/25", "01/07/25", userID);
-        Vacation vacation2 = new Vacation(vacationID++,"London Trip","Downtown Hotel", "02/01/25", "02/05/25", userID);
+        if (repository.getmAllVacations().isEmpty()) { vacationId = 1; }
+        Vacation vacation1 = new Vacation(vacationId++,"Bermuda Trip","Beach Resort", "01/01/25", "01/07/25", userId);
+        Vacation vacation2 = new Vacation(vacationId++,"London Trip","Downtown Hotel", "02/01/25", "02/05/25", userId);
         repository.insert(vacation1);
         repository.insert(vacation2);
     }

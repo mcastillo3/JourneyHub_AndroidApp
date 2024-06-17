@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,37 +29,42 @@ import java.util.Random;
 
 public class ExcursionDetails extends AppCompatActivity {
 
-    String name;
-    String excursionDate;
-    int excursionId;
-    int vacationId;
-    EditText editName;
-    EditText editNote;
-    TextView editDate;
-    Repository repository;
-    Excursion currentExcursion;
-    DatePickerDialog.OnDateSetListener startDate;
-    final Calendar myCalendarStart = Calendar.getInstance();
+    private String excursionName;
+    private String excursionDate;
+
+    private int excursionId;
+    private int vacationId;
+
+    private EditText editName;
+    private EditText editNote;
+    private TextView editDate;
+
+    private Repository repository;
+    private Excursion currentExcursion;
+
+    private DatePickerDialog.OnDateSetListener startDate;
+    private final Calendar MY_CALENDAR_START = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_excursion_details);
-
         repository = new Repository(getApplication());
 
+        // initialize form fields
         editName = findViewById(R.id.excursionName);
         editNote = findViewById(R.id.note);
         editDate = findViewById(R.id.date);
 
+        // get intents from vacation details
         excursionId = getIntent().getIntExtra("id", -1);
-        name = getIntent().getStringExtra("name");
+        excursionName = getIntent().getStringExtra("name");
         excursionDate = getIntent().getStringExtra("date");
         vacationId = getIntent().getIntExtra("vacID", -1);
 
-        editName.setText(name);
+        editName.setText(excursionName);
 
+        // set date field
         if (excursionDate == null) {
             editDate.setHint("pick a date");
         } else {
@@ -81,10 +84,6 @@ public class ExcursionDetails extends AppCompatActivity {
         for (Vacation vacation : vacationArrayList) {
             vacationIdList.add(vacation.getVacationId());
         }
-//        ArrayAdapter<Vacation> vacationIdAdapter = new ArrayAdapter<>(this,
-//                android.R.layout.simple_spinner_item, vacationArrayList);
-//        Spinner spinner = findViewById(R.id.spinner);
-//        spinner.setAdapter(vacationIdAdapter);
 
         editDate.setOnClickListener(v -> {
             final Calendar c = Calendar.getInstance();
@@ -96,27 +95,32 @@ public class ExcursionDetails extends AppCompatActivity {
                 excursionDate = info;
             }
             try {
-                myCalendarStart.setTime(sdf.parse(excursionDate));
+                MY_CALENDAR_START.setTime(sdf.parse(excursionDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            new DatePickerDialog(ExcursionDetails.this, startDate, myCalendarStart
-                    .get(Calendar.YEAR), myCalendarStart.get(Calendar.MONTH),
-                    myCalendarStart.get(Calendar.DAY_OF_MONTH)).show();
+            new DatePickerDialog(ExcursionDetails.this, startDate, MY_CALENDAR_START
+                    .get(Calendar.YEAR), MY_CALENDAR_START.get(Calendar.MONTH),
+                    MY_CALENDAR_START.get(Calendar.DAY_OF_MONTH)).show();
         });
 
         startDate = (view, year, month, dayOfMonth) -> {
-            myCalendarStart.set(Calendar.YEAR, year);
-            myCalendarStart.set(Calendar.MONTH, month);
-            myCalendarStart.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            MY_CALENDAR_START.set(Calendar.YEAR, year);
+            MY_CALENDAR_START.set(Calendar.MONTH, month);
+            MY_CALENDAR_START.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             try {
-                if (validateExcursionDate(myCalendarStart)) {
+                if (validateExcursionDate(MY_CALENDAR_START)) {
                     updateLabelStart();
                 }
             } catch (InterruptedException | ParseException e) {
                 throw new RuntimeException(e);
             }
         };
+
+        //        ArrayAdapter<Vacation> vacationIdAdapter = new ArrayAdapter<>(this,
+//                android.R.layout.simple_spinner_item, vacationArrayList);
+//        Spinner spinner = findViewById(R.id.spinner);
+//        spinner.setAdapter(vacationIdAdapter);
     }
 
     public boolean validateExcursionDate (Calendar excursionDate) throws InterruptedException, ParseException {
@@ -127,7 +131,6 @@ public class ExcursionDetails extends AppCompatActivity {
         Calendar vacationEnd = Calendar.getInstance();
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-
 
         for (Vacation v : repository.getmAssociatedExcursions(vacationId)) {
             if (v.getVacationId() == vacationId) {
@@ -142,9 +145,9 @@ public class ExcursionDetails extends AppCompatActivity {
         if (excursionDate.before(vacationStart) || excursionDate.after(vacationEnd)) {
             Toast.makeText(ExcursionDetails.this, "The excursion cannot be before " + vStart + " or after " + vEnd,
                     Toast.LENGTH_LONG).show();
-            new DatePickerDialog(ExcursionDetails.this, startDate, myCalendarStart
-                    .get(Calendar.YEAR), myCalendarStart.get(Calendar.MONTH),
-                    myCalendarStart.get(Calendar.DAY_OF_MONTH)).show();
+            new DatePickerDialog(ExcursionDetails.this, startDate, MY_CALENDAR_START
+                    .get(Calendar.YEAR), MY_CALENDAR_START.get(Calendar.MONTH),
+                    MY_CALENDAR_START.get(Calendar.DAY_OF_MONTH)).show();
         } else {
             validateDate = true;
         }
@@ -155,7 +158,7 @@ public class ExcursionDetails extends AppCompatActivity {
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
 
-        editDate.setText(sdf.format(myCalendarStart.getTime()));
+        editDate.setText(sdf.format(MY_CALENDAR_START.getTime()));
     }
 
     public boolean onCreateOptionsMenu (Menu menu) {
@@ -164,7 +167,6 @@ public class ExcursionDetails extends AppCompatActivity {
     }
 
     public boolean onOptionsItemSelected (MenuItem item) {
-
         if (item.getItemId() == android.R.id.home) {
             this.finish();
             return true;
@@ -187,7 +189,7 @@ public class ExcursionDetails extends AppCompatActivity {
                 }
                 excursion = new Excursion(excursionId, editName.getText().toString(), editDate.getText().toString(), vacationId);
                 try {
-                    if (validateExcursionDate(myCalendarStart)) {
+                    if (validateExcursionDate(MY_CALENDAR_START)) {
                         repository.insert(excursion);
                         Toast.makeText(ExcursionDetails.this, excursion.getExcursionName() + " has been saved", Toast.LENGTH_LONG).show();
                         ExcursionDetails.this.finish();
@@ -198,7 +200,7 @@ public class ExcursionDetails extends AppCompatActivity {
             } else {
                 excursion = new Excursion(excursionId, editName.getText().toString(), editDate.getText().toString(), vacationId);
                 try {
-                    if (validateExcursionDate(myCalendarStart)) {
+                    if (validateExcursionDate(MY_CALENDAR_START)) {
                         repository.update(excursion);
                         Toast.makeText(ExcursionDetails.this, excursion.getExcursionName() + " has been updated", Toast.LENGTH_LONG).show();
                         ExcursionDetails.this.finish();
@@ -212,7 +214,7 @@ public class ExcursionDetails extends AppCompatActivity {
         if (item.getItemId() == R.id.share) {
             Intent sentIntent = new Intent();
             sentIntent.setAction(Intent.ACTION_SEND);
-            sentIntent.putExtra(Intent.EXTRA_TITLE, name);
+            sentIntent.putExtra(Intent.EXTRA_TITLE, excursionName);
             sentIntent.putExtra(Intent.EXTRA_TEXT, editNote.getText().toString());
             sentIntent.setType("text/plain");
             Intent shareIntent = Intent.createChooser(sentIntent, null);
@@ -233,7 +235,7 @@ public class ExcursionDetails extends AppCompatActivity {
             }
             long trigger = myDate.getTime();
             Intent intent = new Intent(ExcursionDetails.this, MyReceiver.class);
-            intent.putExtra("excursionName", name);
+            intent.putExtra("excursionName", excursionName);
             intent.putExtra("notification_type", "excursion_start");
             PendingIntent sender = PendingIntent.getBroadcast(ExcursionDetails.this,
                     numAlert, intent, PendingIntent.FLAG_IMMUTABLE);

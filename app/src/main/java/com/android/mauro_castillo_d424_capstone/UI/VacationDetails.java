@@ -29,10 +29,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -44,8 +42,8 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
     private String endDate;
 
     private int vacationId;
-    private int excursionID;
-    private int userID;
+    private int excursionId;
+    private int userId;
 
     private EditText editVacation;
     private EditText editHotel;
@@ -54,8 +52,8 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
 
     private DatePickerDialog.OnDateSetListener startDatePicker;
     private DatePickerDialog.OnDateSetListener endDatePicker;
-    private final Calendar myCalendarStart = Calendar.getInstance();
-    private final Calendar myCalendarEnd = Calendar.getInstance();
+    private final Calendar MY_CALENDAR_START = Calendar.getInstance();
+    private final Calendar MY_CALENDAR_END = Calendar.getInstance();
 
     private Repository repository;
     private ExcursionViewModel excursionViewModel;
@@ -85,7 +83,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // get intents from vacation list and instantiate fields
+        // get intents from vacation list and initialize form fields
         editVacation = findViewById(R.id.vacation_text);
         editHotel = findViewById(R.id.hotel_text);
         editStartDate = findViewById(R.id.startDate_text);
@@ -95,7 +93,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         hotelName = getIntent().getStringExtra("hotel");
         startDate = getIntent().getStringExtra("startDate");
         endDate = getIntent().getStringExtra("endDate");
-        userID = getIntent().getIntExtra("userID", -1);
+        userId = getIntent().getIntExtra("userID", -1);
 
         editVacation.setHint(vacationName);
         editHotel.setHint(hotelName);
@@ -126,13 +124,13 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 startDate = defaultDate;
             }
             try {
-                myCalendarStart.setTime(sdf.parse(startDate));
+                MY_CALENDAR_START.setTime(sdf.parse(startDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            new DatePickerDialog(VacationDetails.this, startDatePicker, myCalendarStart
-                    .get(Calendar.YEAR), myCalendarStart.get(Calendar.MONTH),
-                    myCalendarStart.get(Calendar.DAY_OF_MONTH)).show();
+            new DatePickerDialog(VacationDetails.this, startDatePicker, MY_CALENDAR_START
+                    .get(Calendar.YEAR), MY_CALENDAR_START.get(Calendar.MONTH),
+                    MY_CALENDAR_START.get(Calendar.DAY_OF_MONTH)).show();
         });
 
         editEndDate.setOnClickListener(v -> {
@@ -145,28 +143,28 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 endDate = defaultDate;
             }
             try {
-                myCalendarEnd.setTime(sdf.parse(endDate));
+                MY_CALENDAR_END.setTime(sdf.parse(endDate));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
 
-            new DatePickerDialog(VacationDetails.this, endDatePicker, myCalendarEnd
-                    .get(Calendar.YEAR), myCalendarEnd.get(Calendar.MONTH),
-                    myCalendarEnd.get(Calendar.DAY_OF_MONTH)).show();
+            new DatePickerDialog(VacationDetails.this, endDatePicker, MY_CALENDAR_END
+                    .get(Calendar.YEAR), MY_CALENDAR_END.get(Calendar.MONTH),
+                    MY_CALENDAR_END.get(Calendar.DAY_OF_MONTH)).show();
         });
 
         startDatePicker = (view, year, month, dayOfMonth) -> {
-            myCalendarStart.set(Calendar.YEAR, year);
-            myCalendarStart.set(Calendar.MONTH, month);
-            myCalendarStart.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            MY_CALENDAR_START.set(Calendar.YEAR, year);
+            MY_CALENDAR_START.set(Calendar.MONTH, month);
+            MY_CALENDAR_START.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             updateLabelStart();
         };
 
         endDatePicker = (view, year, month, dayOfMonth) -> {
-            myCalendarEnd.set(Calendar.YEAR, year);
-            myCalendarEnd.set(Calendar.MONTH, month);
-            myCalendarEnd.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            if (validateVacationDates(myCalendarStart, myCalendarEnd)) {
+            MY_CALENDAR_END.set(Calendar.YEAR, year);
+            MY_CALENDAR_END.set(Calendar.MONTH, month);
+            MY_CALENDAR_END.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            if (validateVacationDates(MY_CALENDAR_START, MY_CALENDAR_END)) {
                 updateLabelEnd();
             }
         };
@@ -181,8 +179,8 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
 
         if (endDate.before(startDate)) {
             Toast.makeText(VacationDetails.this, "End date cannot be before Start date", Toast.LENGTH_LONG).show();
-            new DatePickerDialog(VacationDetails.this, endDatePicker, myCalendarEnd.get(Calendar.YEAR),
-                    myCalendarEnd.get(Calendar.MONTH), myCalendarEnd.get(Calendar.DAY_OF_MONTH)).show();
+            new DatePickerDialog(VacationDetails.this, endDatePicker, MY_CALENDAR_END.get(Calendar.YEAR),
+                    MY_CALENDAR_END.get(Calendar.MONTH), MY_CALENDAR_END.get(Calendar.DAY_OF_MONTH)).show();
         } else {
             validateDate = true;
         }
@@ -192,13 +190,13 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
     private void updateLabelStart() {
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-        editStartDate.setText(sdf.format(myCalendarStart.getTime()));
+        editStartDate.setText(sdf.format(MY_CALENDAR_START.getTime()));
     }
 
     private void updateLabelEnd() {
         String myFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-        editEndDate.setText(sdf.format(myCalendarEnd.getTime()));
+        editEndDate.setText(sdf.format(MY_CALENDAR_END.getTime()));
     }
 
     public boolean onCreateOptionsMenu (Menu menu) {
@@ -297,10 +295,10 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         if (vacationId == -1)
             Toast.makeText(VacationDetails.this, "Please save vacation before adding excursions", Toast.LENGTH_LONG).show();
         else {
-            if (repository.getmAllExcursions().isEmpty()) excursionID = 1;
+            if (repository.getmAllExcursions().isEmpty()) excursionId = 1;
             Log.d("SAMPLEADD", "Added sample to: " + vacationId);
-            Excursion excursion1 = new Excursion(excursionID++, "Snorkeling", "01/02/25", vacationId);
-            Excursion excursion2 = new Excursion(excursionID++, "Cooking Lesson", "02/02/25", vacationId);
+            Excursion excursion1 = new Excursion(excursionId++, "Snorkeling", "01/02/25", vacationId);
+            Excursion excursion2 = new Excursion(excursionId++, "Cooking Lesson", "02/02/25", vacationId);
             repository.insert(excursion1);
             repository.insert(excursion2);
         }
@@ -328,7 +326,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 throw new RuntimeException(e);
             }
             vacation = new Vacation(vacationId, editVacation.getText().toString(), editHotel.getText().toString(),
-                    editStartDate.getText().toString(), editEndDate.getText().toString(), userID);
+                    editStartDate.getText().toString(), editEndDate.getText().toString(), userId);
             try {
                 repository.insert(vacation);
                 Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been saved", Toast.LENGTH_LONG).show();
@@ -350,7 +348,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
                 if (!editEndDate.getText().toString().isEmpty()) {
                     endDate = editEndDate.getText().toString();
                 }
-                vacation = new Vacation(vacationId, vacationName, hotelName, startDate, endDate, userID);
+                vacation = new Vacation(vacationId, vacationName, hotelName, startDate, endDate, userId);
                 repository.update(vacation);
                 Toast.makeText(VacationDetails.this, vacation.getVacationName() + " has been updated", Toast.LENGTH_LONG).show();
                 VacationDetails.this.finish();

@@ -15,21 +15,21 @@ import androidx.core.app.NotificationCompat;
 
 import com.android.mauro_castillo_d424_capstone.R;
 
+import java.util.Objects;
+
 public class MyReceiver extends BroadcastReceiver {
 
-    String channel_id = "test";
-    static int notificationId;
-    String vacationName;
-    String excursionName;
+    private static int notificationId;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
         String notificationType = intent.getStringExtra("notification_type");
-        vacationName = intent.getStringExtra("vacationName");
+        String vacationName = intent.getStringExtra("vacationName");
 
-        switch (notificationType) {
+        String channel_id = "test";
+        switch (Objects.requireNonNull(notificationType)) {
             case "vacation_start":
                 createNotificationChannel(context, channel_id);
                 Notification builder = new NotificationCompat.Builder(context, channel_id)
@@ -51,7 +51,7 @@ public class MyReceiver extends BroadcastReceiver {
                 notificationManager.notify(notificationId++, builder1);
                 break;
             case "excursion_start":
-                excursionName = intent.getStringExtra("excursionName");
+                String excursionName = intent.getStringExtra("excursionName");
                 createNotificationChannel(context, channel_id);
                 Notification builder2 = new NotificationCompat.Builder(context, channel_id)
                         .setSmallIcon(R.drawable.ic_launcher_foreground)
