@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -25,12 +26,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.PrimitiveIterator;
 import java.util.Random;
 
 public class ExcursionDetails extends AppCompatActivity {
 
     private String excursionName;
-    private String excursionDate;
 
     private int excursionId;
     private int vacationId;
@@ -40,10 +41,10 @@ public class ExcursionDetails extends AppCompatActivity {
     private TextView editDate;
 
     private Repository repository;
-    private Excursion currentExcursion;
 
-    private DatePickerDialog.OnDateSetListener startDate;
-    private final Calendar MY_CALENDAR_START = Calendar.getInstance();
+    private DatePickerDialog.OnDateSetListener datePick;
+    private final Calendar MY_CALENDAR_DATE = Calendar.getInstance();
+    private static final String DATE_FORMAT = "MM/dd/yy";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,114 +52,86 @@ public class ExcursionDetails extends AppCompatActivity {
         setContentView(R.layout.activity_excursion_details);
         repository = new Repository(getApplication());
 
+        initializeViews();
+        setupDatePicker();
+    }
+
+    private void initializeViews() {
         // initialize form fields
         editName = findViewById(R.id.excursionName);
         editNote = findViewById(R.id.note);
         editDate = findViewById(R.id.date);
 
-        // get intents from vacation details
+        // handle extra intents
         excursionId = getIntent().getIntExtra("id", -1);
         excursionName = getIntent().getStringExtra("name");
-        excursionDate = getIntent().getStringExtra("date");
+        String excursionDate = getIntent().getStringExtra("date");
         vacationId = getIntent().getIntExtra("vacID", -1);
 
+        // set names
         editName.setText(excursionName);
 
-        // set date field
+        // set date hint
         if (excursionDate == null) {
             editDate.setHint("pick a date");
         } else {
             editDate.setHint(excursionDate);
         }
+    }
 
-        String myFormat = "MM/dd/yy";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+    private void setupDatePicker(){
+        editDate.setOnClickListener(v -> showDatePicker(editDate, MY_CALENDAR_DATE));
+    }
 
-        ArrayList<Vacation> vacationArrayList = new ArrayList<>();
-        try {
-            vacationArrayList.addAll(repository.getmAllVacations());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+    private void showDatePicker(TextView editDate, Calendar MY_CALENDAR_DATE) {
+        String defaultDate = new SimpleDateFormat(DATE_FORMAT, Locale.US).format(MY_CALENDAR_DATE.getTime());
+        if (editDate.getText().toString().isEmpty() && editDate.getHint() == null) {
+            editDate.setHint(defaultDate);
         }
-        ArrayList<Integer> vacationIdList = new ArrayList<>();
-        for (Vacation vacation : vacationArrayList) {
-            vacationIdList.add(vacation.getVacationId());
-        }
-
-        editDate.setOnClickListener(v -> {
-            final Calendar c = Calendar.getInstance();
-            String mYear = String.valueOf(c.get(Calendar.YEAR));
-            String mMonth = String.valueOf(c.get(Calendar.MONTH) + 1);
-            String mDay = String.valueOf(c.get(Calendar.DAY_OF_MONTH));
-            String info = mMonth + "/" + mDay + "/" + mYear;
-            if (editDate.getText().toString().isEmpty() && excursionDate == null) {
-                excursionDate = info;
-            }
+        new DatePickerDialog(ExcursionDetails.this, (view, year, month, dayOfMonth) -> {
+            MY_CALENDAR_DATE.set(Calendar.YEAR, year);
+            MY_CALENDAR_DATE.set(Calendar.MONTH, month);
+            MY_CALENDAR_DATE.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             try {
-                MY_CALENDAR_START.setTime(sdf.parse(excursionDate));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            new DatePickerDialog(ExcursionDetails.this, startDate, MY_CALENDAR_START
-                    .get(Calendar.YEAR), MY_CALENDAR_START.get(Calendar.MONTH),
-                    MY_CALENDAR_START.get(Calendar.DAY_OF_MONTH)).show();
-        });
-
-        startDate = (view, year, month, dayOfMonth) -> {
-            MY_CALENDAR_START.set(Calendar.YEAR, year);
-            MY_CALENDAR_START.set(Calendar.MONTH, month);
-            MY_CALENDAR_START.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            try {
-                if (validateExcursionDate(MY_CALENDAR_START)) {
-                    updateLabelStart();
+                if (validateExcursionDate(MY_CALENDAR_DATE)) {
+                    updateLabel(editDate, MY_CALENDAR_DATE);
                 }
             } catch (InterruptedException | ParseException e) {
                 throw new RuntimeException(e);
             }
-        };
 
-        //        ArrayAdapter<Vacation> vacationIdAdapter = new ArrayAdapter<>(this,
-//                android.R.layout.simple_spinner_item, vacationArrayList);
-//        Spinner spinner = findViewById(R.id.spinner);
-//        spinner.setAdapter(vacationIdAdapter);
+        }, MY_CALENDAR_DATE.get(Calendar.YEAR), MY_CALENDAR_DATE.get(Calendar.MONTH), MY_CALENDAR_DATE.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void updateLabel(TextView textDate, Calendar MY_CALENDAR_DATE) {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        textDate.setText(sdf.format(MY_CALENDAR_DATE.getTime()));
     }
 
     public boolean validateExcursionDate (Calendar excursionDate) throws InterruptedException, ParseException {
-        boolean validateDate = false;
-        String vStart = null;
-        String vEnd = null;
-        Calendar vacationStart = Calendar.getInstance();
-        Calendar vacationEnd = Calendar.getInstance();
-        String myFormat = "MM/dd/yy";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
 
-        for (Vacation v : repository.getmAssociatedExcursions(vacationId)) {
+        for (Vacation v : repository.getmAllVacations()) {
             if (v.getVacationId() == vacationId) {
-                vStart = v.getStartDate();
-                vEnd = v.getEndDate();
+
+                Calendar vacationStart = Calendar.getInstance();
+                Calendar vacationEnd = Calendar.getInstance();
+                vacationStart.setTime(sdf.parse(v.getStartDate()));
+                vacationEnd.setTime(sdf.parse(v.getEndDate()));
+                excursionDate.set(Calendar.HOUR_OF_DAY,0);
+                excursionDate.set(Calendar.MINUTE, 0);
+                excursionDate.set(Calendar.SECOND, 0);
+                excursionDate.set(Calendar.MILLISECOND, 0);
+
+                if (excursionDate.before(vacationStart) || excursionDate.after(vacationEnd)) {
+                    Toast.makeText(ExcursionDetails.this, "The excursion cannot be before " + v.getStartDate() + " or after " + v.getEndDate(),
+                            Toast.LENGTH_LONG).show();
+                    return false;
+                }
+                return true;
             }
         }
-
-        vacationStart.setTime(sdf.parse(vStart));
-        vacationEnd.setTime(sdf.parse(vEnd));
-
-        if (excursionDate.before(vacationStart) || excursionDate.after(vacationEnd)) {
-            Toast.makeText(ExcursionDetails.this, "The excursion cannot be before " + vStart + " or after " + vEnd,
-                    Toast.LENGTH_LONG).show();
-            new DatePickerDialog(ExcursionDetails.this, startDate, MY_CALENDAR_START
-                    .get(Calendar.YEAR), MY_CALENDAR_START.get(Calendar.MONTH),
-                    MY_CALENDAR_START.get(Calendar.DAY_OF_MONTH)).show();
-        } else {
-            validateDate = true;
-        }
-        return validateDate;
-    }
-
-    private void updateLabelStart() {
-        String myFormat = "MM/dd/yy";
-        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-
-        editDate.setText(sdf.format(MY_CALENDAR_START.getTime()));
+        return false;
     }
 
     public boolean onCreateOptionsMenu (Menu menu) {
@@ -172,93 +145,89 @@ public class ExcursionDetails extends AppCompatActivity {
             return true;
         }
         if (item.getItemId() == R.id.excursionSave) {
-            Excursion excursion;
-            if (excursionId == -1) {
-                try {
-                    if (repository.getmAllExcursions().isEmpty()) excursionId = 1;
-                    else {
-                        try {
-                            excursionId = repository.getmAllExcursions().get(repository.getmAllExcursions().size() - 1)
-                                    .getExcursionId() + 1;
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                excursion = new Excursion(excursionId, editName.getText().toString(), editDate.getText().toString(), vacationId);
-                try {
-                    if (validateExcursionDate(MY_CALENDAR_START)) {
-                        repository.insert(excursion);
-                        Toast.makeText(ExcursionDetails.this, excursion.getExcursionName() + " has been saved", Toast.LENGTH_LONG).show();
-                        ExcursionDetails.this.finish();
-                    }
-                } catch (InterruptedException | ParseException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                excursion = new Excursion(excursionId, editName.getText().toString(), editDate.getText().toString(), vacationId);
-                try {
-                    if (validateExcursionDate(MY_CALENDAR_START)) {
-                        repository.update(excursion);
-                        Toast.makeText(ExcursionDetails.this, excursion.getExcursionName() + " has been updated", Toast.LENGTH_LONG).show();
-                        ExcursionDetails.this.finish();
-                    }
-                } catch (InterruptedException | ParseException e) {
-                    throw new RuntimeException(e);
-                }
+            try {
+                saveOrUpdateExcursion();
+            } catch (InterruptedException | ParseException e) {
+                throw new RuntimeException(e);
             }
             return true;
         }
         if (item.getItemId() == R.id.share) {
-            Intent sentIntent = new Intent();
-            sentIntent.setAction(Intent.ACTION_SEND);
-            sentIntent.putExtra(Intent.EXTRA_TITLE, excursionName);
-            sentIntent.putExtra(Intent.EXTRA_TEXT, editNote.getText().toString());
-            sentIntent.setType("text/plain");
-            Intent shareIntent = Intent.createChooser(sentIntent, null);
-            startActivity(shareIntent);
+            shareExcursion();
             return true;
         }
         if (item.getItemId() == R.id.notify) {
-            Random r = new Random();
-            int numAlert = r.nextInt(1000) + 1;
-            String dateFromScreen = editDate.getText().toString();
-            String myFormat = "MM/dd/yy";
-            SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-            Date myDate = null;
             try {
-                myDate = sdf.parse(dateFromScreen);
+                scheduleNotification();
             } catch (ParseException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
-            long trigger = myDate.getTime();
-            Intent intent = new Intent(ExcursionDetails.this, MyReceiver.class);
-            intent.putExtra("excursionName", excursionName);
-            intent.putExtra("notification_type", "excursion_start");
-            PendingIntent sender = PendingIntent.getBroadcast(ExcursionDetails.this,
-                    numAlert, intent, PendingIntent.FLAG_IMMUTABLE);
-            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-            alarmManager.set(AlarmManager.RTC_WAKEUP, trigger, sender);
             return true;
         }
         if (item.getItemId() == R.id.deleteExcursion) {
             try {
-                for (Excursion exc : repository.getmAllExcursions()) {
-                    if (exc.getExcursionId() == excursionId) currentExcursion = exc;
-                }
+                deleteExcursion();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            try {
-                repository.delete(currentExcursion);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            Toast.makeText(ExcursionDetails.this, currentExcursion.getExcursionName() + " was deleted", Toast.LENGTH_LONG).show();
-            ExcursionDetails.this.finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void saveOrUpdateExcursion() throws InterruptedException, ParseException {
+        Excursion excursion;
+        Log.d("CHECKID", "ExcursionID : " + excursionId);
+        if (excursionId == -1) {
+            excursionId = repository.getmAllExcursions().isEmpty() ? 1 : repository.getmAllExcursions().get(repository.getmAllExcursions().size() - 1).getExcursionId() + 1;
+            excursion = new Excursion(excursionId, editName.getText().toString(), editDate.getText().toString(), vacationId);
+            if (validateExcursionDate(MY_CALENDAR_DATE)) {
+                repository.insert(excursion);
+                Toast.makeText(this, excursion.getExcursionName() + " has been saved", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            excursion = new Excursion(excursionId, editName.getText().toString(), editDate.getText().toString(), vacationId);
+            if (validateExcursionDate(MY_CALENDAR_DATE)) {
+                repository.update(excursion);
+                Toast.makeText(this, excursion.getExcursionName() + " has been updated", Toast.LENGTH_LONG).show();
+            }
+            finish();
+        }
+    }
+
+    private void shareExcursion() {
+        Intent sentIntent = new Intent(Intent.ACTION_SEND);
+        sentIntent.putExtra(Intent.EXTRA_TITLE, excursionName);
+        sentIntent.putExtra(Intent.EXTRA_TEXT, editNote.getText().toString());
+        sentIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sentIntent, null));
+    }
+
+    private void scheduleNotification() throws ParseException {
+        Random r = new Random();
+        int numAlert = r.nextInt(1000) + 1;
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+        Date myDate = sdf.parse(editDate.getText().toString());
+        long trigger = myDate.getTime();
+
+
+        Intent intent = new Intent(this, MyReceiver.class);
+        intent.putExtra("excursionName", excursionName);
+        intent.putExtra("notification_type", "excursion_start");
+        PendingIntent sender = PendingIntent.getBroadcast(ExcursionDetails.this,
+                numAlert, intent, PendingIntent.FLAG_IMMUTABLE);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, trigger, sender);
+    }
+
+    private void deleteExcursion() throws InterruptedException {
+        Excursion currentExcursion = repository.getmAllExcursions().stream().filter(exc -> exc.getExcursionId() ==
+                excursionId).findFirst().orElse(null);
+
+        if (currentExcursion != null) {
+            repository.delete(currentExcursion);
+            Toast.makeText(this, currentExcursion.getExcursionName() + " was deleted", Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 }

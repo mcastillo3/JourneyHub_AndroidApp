@@ -17,7 +17,11 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Repository repository;
+    Repository repository;
+    EditText userName;
+    EditText password;
+    private Button loginButton;
+    Button signUpButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,75 +29,75 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         repository = new Repository(getApplication());
 
-        EditText userName = findViewById(R.id.userName);
-        EditText password = findViewById(R.id.password);
-        Button loginButton = findViewById(R.id.loginButton);
-        Button signUpButton = findViewById(R.id.signUpButton);
+        setupUI();
 
-        signUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String enteredUserName = userName.getText().toString();
-                String enteredPassword = password.getText().toString();
+        signUpButton.setOnClickListener(v -> registerUser());
+        loginButton.setOnClickListener(v -> loginUser());
+    }
 
-                if (enteredPassword.isEmpty() || enteredUserName.isEmpty()) {
-                    Toast.makeText(MainActivity.this,"Please enter a Username and Password to register", Toast.LENGTH_SHORT).show();
-                    return;
+    private void setupUI() {
+        userName = findViewById(R.id.userName);
+        password = findViewById(R.id.password);
+        loginButton = findViewById(R.id.loginButton);
+        signUpButton = findViewById(R.id.signUpButton);
+    }
+
+    private void registerUser() {
+        String enteredUserName = userName.getText().toString();
+        String enteredPassword = password.getText().toString();
+
+        if (validateInput(enteredPassword, enteredUserName)) {
+            // fetch user data asynchronously and check if user already exists
+            repository.getUserByUserName(enteredUserName, user -> runOnUiThread(() -> {
+                if (user != null && user.getUserName().equals(enteredUserName)) {
+                    Toast.makeText(MainActivity.this, "Username already exists. Please enter a new username.", Toast.LENGTH_SHORT).show();
+                } else {
+                    String hashedPassword = hashPassword(enteredPassword);
+                    User newUser = new User(enteredUserName, hashedPassword);
+                    new Thread(() -> {
+                        try {
+                            repository.insert(newUser);
+                            runOnUiThread(() -> Toast.makeText(MainActivity.this, "User Registered!", Toast.LENGTH_SHORT).show());
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).start();
                 }
-                // fetch user data asynchronously and check if user already exists
-                repository.getUserByUserName(enteredUserName, new Repository.RepositoryCallback<User>() {
-                    @Override
-                    public void onComplete(User user) {
-                        runOnUiThread(() -> {
-                            if (user != null && user.getUserName().equals(enteredUserName)) {
-                                Toast.makeText(MainActivity.this, "Username already exists. Please enter a new username.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                String hashedPassword = hashPassword(enteredPassword);
-                                User newUser = new User(enteredUserName, hashedPassword);
-                                try {
-                                    repository.insert(newUser);
-                                } catch (InterruptedException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                Toast.makeText(MainActivity.this, "User Registered!", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                });
-            }
-        });
+            }));
+        }
+    }
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String enteredUserName = userName.getText().toString();
-                String enteredPassword = password.getText().toString();
+    private void loginUser() {
+        String enteredUserName = userName.getText().toString();
+        String enteredPassword = password.getText().toString();
 
-                if (enteredUserName.isEmpty() && enteredPassword.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Username and Password cannot be empty", Toast.LENGTH_SHORT).show();
-                    return;
+        if (validateInput(enteredUserName, enteredPassword)) {
+            // fetch user data asynchronously
+            repository.getUserByUserName(enteredUserName, user -> runOnUiThread(() -> {
+                if (user != null && checkPassword(enteredPassword, user.getHashedPassword())) {
+                    Intent intent = new Intent(MainActivity.this, VacationList.class);
+                    intent.putExtra("userID", user.getUserId());
+                    startActivity(intent);
+                    Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                    clearInputFields();
+                } else {
+                    Toast.makeText(MainActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                 }
+            }));
+        }
+    }
 
-                // fetch user data asynchronously
-                repository.getUserByUserName(enteredUserName, new Repository.RepositoryCallback<User>() {
-                    @Override
-                    public void onComplete(User user) {
-                        runOnUiThread(() -> {
-                            if (user != null && checkPassword(enteredPassword, user.getHashedPassword())) {
-                                Intent intent = new Intent(MainActivity.this, VacationList.class);
-                                intent.putExtra("userID", user.getUserId());
-                                startActivity(intent);
-                                Toast.makeText(MainActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                                userName.setText("");
-                                password.setText("");
-                            } else {
-                                Toast.makeText(MainActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                });
-            }
-        });
+    private boolean validateInput(String userName, String password) {
+        if (userName.isEmpty() || password.isEmpty()) {
+            Toast.makeText(MainActivity.this, "Username and Password cannot be empty", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
+    private void clearInputFields() {
+        userName.setText("");
+        password.setText("");
     }
 
     // check password

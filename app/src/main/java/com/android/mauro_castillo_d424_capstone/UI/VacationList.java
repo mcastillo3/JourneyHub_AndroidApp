@@ -36,26 +36,36 @@ public class VacationList extends AppCompatActivity {
 
         userId = getIntent().getIntExtra("userID", -1);
 
+        setupUI();
+        setupViewModel();
+    }
+
+    private void setupUI() {
         // set up floating "add" button
         FloatingActionButton fab = findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(VacationList.this, VacationDetails.class);
-                intent.putExtra("userID", userId);
-                startActivity(intent);
-            }
-        });
+        fab.setOnClickListener(v -> openVacationDetails());
 
         // set up the recyclerview
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         final VacationAdapter vacationAdapter = new VacationAdapter(this);
         recyclerView.setAdapter(vacationAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
 
+    private void setupViewModel() {
         // set up view model
         vacationViewModel = new ViewModelProvider(this).get(VacationViewModel.class);
-        vacationViewModel.getAllVacations().observe(this, vacationAdapter::setVacations);
+        vacationViewModel.getAllVacations().observe(this, vacations -> {
+            RecyclerView recyclerView = findViewById(R.id.recyclerView);
+            ((VacationAdapter) recyclerView.getAdapter()).setVacations(vacations);
+        });
+//        vacationViewModel.getAllVacations().observe(this, vacationAdapter::setVacations);
+    }
+
+    private void openVacationDetails() {
+        Intent intent = new Intent(VacationList.this, VacationDetails.class);
+        intent.putExtra("userID", userId);
+        startActivity(intent);
     }
 
     @Override
@@ -79,7 +89,6 @@ public class VacationList extends AppCompatActivity {
                 return false;
             }
         });
-
         return true;
     }
 
@@ -87,7 +96,7 @@ public class VacationList extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // return to login screen
         if (item.getItemId() == R.id.logOut) {
-            this.finish();
+            logOut();
             return true;
         }
         // generate a report with all vacations
@@ -111,13 +120,18 @@ public class VacationList extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void logOut() {
+        Toast.makeText(this, "You have successfully logged out", Toast.LENGTH_SHORT).show();
+        this.finish();
+    }
+
     private void generateReport() throws InterruptedException {
         List<Vacation> vacations = repository.getmAllVacations();
         if (vacations.isEmpty()) {
             Toast.makeText(this, "Please add vacations first", Toast.LENGTH_SHORT).show();
             return;
         } else {
-            // generate excel report and save to '/storage/emulated/0/Android/data/VacationReport.xlsx/files/'
+            // generate excel report and save to '/storage/emulated/0/Android/data/"application name"/files/VacationReport.xlsx/'
             ReportGenerator reportGenerator = new ReportGenerator();
             reportGenerator.generateExcelReport(vacations, getExternalFilesDir(null) + "/VacationReport.xlsx");
             Toast.makeText(this, "Your report can be found in your phone directory", Toast.LENGTH_SHORT).show();
