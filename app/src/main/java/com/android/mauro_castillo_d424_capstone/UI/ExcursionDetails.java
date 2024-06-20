@@ -52,11 +52,11 @@ public class ExcursionDetails extends AppCompatActivity {
         setContentView(R.layout.activity_excursion_details);
         repository = new Repository(getApplication());
 
-        initializeViews();
+        setupUI();
         setupDatePicker();
     }
 
-    private void initializeViews() {
+    private void setupUI() {
         // initialize form fields
         editName = findViewById(R.id.excursionName);
         editNote = findViewById(R.id.note);

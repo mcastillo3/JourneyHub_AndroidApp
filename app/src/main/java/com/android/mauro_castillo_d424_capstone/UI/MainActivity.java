@@ -2,7 +2,6 @@ package com.android.mauro_castillo_d424_capstone.UI;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -20,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     Repository repository;
     EditText userName;
     EditText password;
-    private Button loginButton;
+    Button loginButton;
     Button signUpButton;
 
     @Override
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean validateInput(String userName, String password) {
+    boolean validateInput(String userName, String password) {
         if (userName.isEmpty() || password.isEmpty()) {
             Toast.makeText(MainActivity.this, "Username and Password cannot be empty", Toast.LENGTH_SHORT).show();
             return false;

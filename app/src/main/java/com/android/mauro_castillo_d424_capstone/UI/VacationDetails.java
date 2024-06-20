@@ -64,8 +64,6 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         repository = new Repository(getApplication());
 
         setupUI();
-        initializeViews();
-        setupRecyclerViews();
         setupDatePickers();
         setupViewModel();
     }
@@ -74,15 +72,7 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         // set up floating "add" button
         FloatingActionButton fab = findViewById(R.id.floatingActionButton2);
         fab.setOnClickListener(v -> openExcursionDetails());
-    }
 
-    private void openExcursionDetails() {
-        Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
-        intent.putExtra("vacID", vacationId);
-        startActivity(intent);
-    }
-
-    private void initializeViews() {
         // initialize form fields
         editVacation = findViewById(R.id.vacation_text);
         editHotel = findViewById(R.id.hotel_text);
@@ -104,14 +94,18 @@ public class VacationDetails extends AppCompatActivity implements androidx.appco
         // set date or hints
         editStartDate.setHint(startDate == null ? "start date" : startDate);
         editEndDate.setHint(endDate == null ? "end date" : endDate);
-    }
 
-    private void setupRecyclerViews() {
         // set up the recyclerview
         RecyclerView recyclerView = findViewById(R.id.excursionRecyclerView);
         excursionAdapter = new ExcursionAdapter(this);
         recyclerView.setAdapter(excursionAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void openExcursionDetails() {
+        Intent intent = new Intent(VacationDetails.this, ExcursionDetails.class);
+        intent.putExtra("vacID", vacationId);
+        startActivity(intent);
     }
 
     private void setupDatePickers() {

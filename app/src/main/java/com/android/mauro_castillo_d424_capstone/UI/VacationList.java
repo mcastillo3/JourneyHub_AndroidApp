@@ -59,7 +59,6 @@ public class VacationList extends AppCompatActivity {
             RecyclerView recyclerView = findViewById(R.id.recyclerView);
             ((VacationAdapter) recyclerView.getAdapter()).setVacations(vacations);
         });
-//        vacationViewModel.getAllVacations().observe(this, vacationAdapter::setVacations);
     }
 
     private void openVacationDetails() {

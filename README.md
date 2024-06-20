@@ -45,3 +45,4 @@ Refactored login functionality on MainActivity to use a secure method of registe
 Added validation to login attempt.
 Added validation to generate report. Removed unused spinner in ExcursionDetails.
 Added validation to check if user already exists.
+Created JUnit test to check the inputValidation method on MainActivity class.
